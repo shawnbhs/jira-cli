@@ -8,7 +8,7 @@ exporter has to guess what to do with a nested dict.
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from typing import Any
 
 SCALARS = (str, int, float, bool)
@@ -32,7 +32,7 @@ def _as_scalar(value: Any) -> str | int | float | bool | None:
 
 def utc_now_iso() -> str:
     """Current UTC time as ISO-8601 with a ``Z`` suffix, to the second."""
-    return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def make_report(
