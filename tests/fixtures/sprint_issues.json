@@ -1,0 +1,1094 @@
+{
+  "expand": "schema,names",
+  "startAt": 0,
+  "maxResults": 3,
+  "total": 52,
+  "issues": [
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "12061",
+      "self": "https://jira.example.com/rest/agile/1.0/issue/12061",
+      "key": "PROJ-68",
+      "fields": {
+        "issuetype": {
+          "self": "https://jira.example.com/rest/api/2/issuetype/10001",
+          "id": "10001",
+          "description": "Sample text 2",
+          "name": "Story",
+          "subtask": false
+        },
+        "timespent": null,
+        "sprint": {
+          "id": 6,
+          "self": "https://jira.example.com/rest/agile/1.0/sprint/6",
+          "state": "active",
+          "name": "Sample name 1",
+          "startDate": "2025-09-07T18:16:00.000+00:00",
+          "endDate": "2025-09-14T18:16:00.000+00:00",
+          "activatedDate": "2025-09-07T11:17:05.551+00:00",
+          "originBoardId": 9,
+          "goal": "Sample text 1",
+          "synced": false,
+          "autoStartStop": false
+        },
+        "project": {
+          "self": "https://jira.example.com/rest/api/2/project/10500",
+          "id": "10500",
+          "key": "PROJ",
+          "name": "Project PROJ",
+          "projectTypeKey": "software",
+          "projectCategory": {
+            "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+            "id": "10001",
+            "description": "Sample text 1",
+            "name": "Example Corp"
+          }
+        },
+        "fixVersions": [],
+        "customfield_10110": null,
+        "customfield_10111": null,
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10302": null,
+        "customfield_10700": null,
+        "customfield_10502": null,
+        "customfield_10305": null,
+        "customfield_10503": null,
+        "customfield_10306": null,
+        "customfield_10108": "PROJ-1",
+        "customfield_10504": null,
+        "customfield_10109": [
+          "com.atlassian.greenhopper.service.sprint.Sprint@172f5d0b[activatedDate=2025-09-07T11:17:05.551+00:00,autoStartStop=false,completeDate=<null>,endDate=2025-09-14T18:16:00.000+00:00,goal=Sample text,id=6,incompleteIssuesDestinationId=<null>,name=Sample Sprint,rapidViewId=9,sequence=6,startDate=2025-09-07T18:16:00.000+00:00,state=ACTIVE,synced=false]"
+        ],
+        "customfield_10505": null,
+        "customfield_10506": null,
+        "resolutiondate": null,
+        "customfield_10705": null,
+        "customfield_10507": null,
+        "customfield_10706": null,
+        "customfield_10508": null,
+        "workratio": -1,
+        "lastViewed": null,
+        "watches": {
+          "self": "https://jira.example.com/rest/api/2/issue/PROJ-68/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "created": "2025-09-01T23:24:22.000+0000",
+        "epic": {
+          "id": 11627,
+          "key": "PROJ-1",
+          "self": "https://jira.example.com/rest/agile/1.0/epic/11627",
+          "name": "Sample text 3",
+          "summary": "Sample text 3",
+          "color": {
+            "key": "color_4"
+          },
+          "done": false
+        },
+        "priority": {
+          "self": "https://jira.example.com/rest/api/2/priority/3",
+          "name": "Medium",
+          "id": "3"
+        },
+        "customfield_10100": null,
+        "customfield_10101": null,
+        "customfield_10102": null,
+        "customfield_10300": null,
+        "labels": [],
+        "customfield_10103": null,
+        "customfield_10301": null,
+        "customfield_10731": null,
+        "customfield_10732": null,
+        "customfield_10733": null,
+        "customfield_10734": null,
+        "timeestimate": null,
+        "aggregatetimeoriginalestimate": null,
+        "versions": [],
+        "issuelinks": [],
+        "assignee": {
+          "self": "https://jira.example.com/rest/api/2/user?username=bob",
+          "name": "bob",
+          "key": "bob",
+          "emailAddress": "bob@example.com",
+          "displayName": "Bob",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "updated": "2025-09-22T12:33:41.000+0000",
+        "status": {
+          "self": "https://jira.example.com/rest/api/2/status/10001",
+          "description": "Sample text 1",
+          "name": "Done",
+          "id": "10001",
+          "statusCategory": {
+            "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "success",
+            "name": "Done"
+          }
+        },
+        "components": [
+          {
+            "self": "https://jira.example.com/rest/api/2/component/10100",
+            "id": "10100",
+            "name": "Sample text 4"
+          }
+        ],
+        "timeoriginalestimate": null,
+        "description": null,
+        "timetracking": {},
+        "archiveddate": null,
+        "customfield_10730": null,
+        "customfield_10720": null,
+        "customfield_10600": [],
+        "customfield_10721": null,
+        "customfield_10601": null,
+        "customfield_10722": null,
+        "customfield_10602": null,
+        "customfield_10723": null,
+        "attachment": [],
+        "customfield_10724": null,
+        "customfield_10603": null,
+        "aggregatetimeestimate": null,
+        "flagged": false,
+        "customfield_10725": null,
+        "customfield_10604": null,
+        "customfield_10605": null,
+        "customfield_10726": null,
+        "customfield_10606": "0|i003dw:i",
+        "customfield_10727": null,
+        "customfield_10728": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10729": null,
+        "summary": "Sample text 5",
+        "creator": {
+          "self": "https://jira.example.com/rest/api/2/user?username=bob",
+          "name": "bob",
+          "key": "bob",
+          "emailAddress": "bob@example.com",
+          "displayName": "Bob",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "subtasks": [
+          {
+            "id": "12214",
+            "key": "PROJ-75",
+            "self": "https://jira.example.com/rest/api/2/issue/12214",
+            "fields": {
+              "summary": "Sample text 6",
+              "status": {
+                "self": "https://jira.example.com/rest/api/2/status/10001",
+                "description": "Sample text 1",
+                "name": "Done",
+                "id": "10001",
+                "statusCategory": {
+                  "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+                  "id": 3,
+                  "key": "done",
+                  "colorName": "success",
+                  "name": "Done"
+                }
+              },
+              "priority": {
+                "self": "https://jira.example.com/rest/api/2/priority/3",
+                "name": "Medium",
+                "id": "3"
+              },
+              "issuetype": {
+                "self": "https://jira.example.com/rest/api/2/issuetype/10003",
+                "id": "10003",
+                "description": "Sample text 7",
+                "name": "Sub-task",
+                "subtask": true
+              }
+            }
+          },
+          {
+            "id": "12215",
+            "key": "PROJ-76",
+            "self": "https://jira.example.com/rest/api/2/issue/12215",
+            "fields": {
+              "summary": "Sample text 8",
+              "status": {
+                "self": "https://jira.example.com/rest/api/2/status/10108",
+                "description": "Sample text 1",
+                "name": "Rejected",
+                "id": "10108",
+                "statusCategory": {
+                  "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+                  "id": 3,
+                  "key": "done",
+                  "colorName": "success",
+                  "name": "Done"
+                }
+              },
+              "priority": {
+                "self": "https://jira.example.com/rest/api/2/priority/3",
+                "name": "Medium",
+                "id": "3"
+              },
+              "issuetype": {
+                "self": "https://jira.example.com/rest/api/2/issuetype/10003",
+                "id": "10003",
+                "description": "Sample text 7",
+                "name": "Sub-task",
+                "subtask": true
+              }
+            }
+          },
+          {
+            "id": "12217",
+            "key": "PROJ-78",
+            "self": "https://jira.example.com/rest/api/2/issue/12217",
+            "fields": {
+              "summary": "Sample text 9",
+              "status": {
+                "self": "https://jira.example.com/rest/api/2/status/10108",
+                "description": "Sample text 1",
+                "name": "Rejected",
+                "id": "10108",
+                "statusCategory": {
+                  "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+                  "id": 3,
+                  "key": "done",
+                  "colorName": "success",
+                  "name": "Done"
+                }
+              },
+              "priority": {
+                "self": "https://jira.example.com/rest/api/2/priority/3",
+                "name": "Medium",
+                "id": "3"
+              },
+              "issuetype": {
+                "self": "https://jira.example.com/rest/api/2/issuetype/10003",
+                "id": "10003",
+                "description": "Sample text 7",
+                "name": "Sub-task",
+                "subtask": true
+              }
+            }
+          },
+          {
+            "id": "12218",
+            "key": "PROJ-79",
+            "self": "https://jira.example.com/rest/api/2/issue/12218",
+            "fields": {
+              "summary": "Sample text 10",
+              "status": {
+                "self": "https://jira.example.com/rest/api/2/status/10108",
+                "description": "Sample text 1",
+                "name": "Rejected",
+                "id": "10108",
+                "statusCategory": {
+                  "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+                  "id": 3,
+                  "key": "done",
+                  "colorName": "success",
+                  "name": "Done"
+                }
+              },
+              "priority": {
+                "self": "https://jira.example.com/rest/api/2/priority/3",
+                "name": "Medium",
+                "id": "3"
+              },
+              "issuetype": {
+                "self": "https://jira.example.com/rest/api/2/issuetype/10003",
+                "id": "10003",
+                "description": "Sample text 7",
+                "name": "Sub-task",
+                "subtask": true
+              }
+            }
+          },
+          {
+            "id": "12219",
+            "key": "PROJ-80",
+            "self": "https://jira.example.com/rest/api/2/issue/12219",
+            "fields": {
+              "summary": "Sample text 11",
+              "status": {
+                "self": "https://jira.example.com/rest/api/2/status/10108",
+                "description": "Sample text 1",
+                "name": "Rejected",
+                "id": "10108",
+                "statusCategory": {
+                  "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+                  "id": 3,
+                  "key": "done",
+                  "colorName": "success",
+                  "name": "Done"
+                }
+              },
+              "priority": {
+                "self": "https://jira.example.com/rest/api/2/priority/3",
+                "name": "Medium",
+                "id": "3"
+              },
+              "issuetype": {
+                "self": "https://jira.example.com/rest/api/2/issuetype/10003",
+                "id": "10003",
+                "description": "Sample text 7",
+                "name": "Sub-task",
+                "subtask": true
+              }
+            }
+          },
+          {
+            "id": "12220",
+            "key": "PROJ-81",
+            "self": "https://jira.example.com/rest/api/2/issue/12220",
+            "fields": {
+              "summary": "Sample text 12",
+              "status": {
+                "self": "https://jira.example.com/rest/api/2/status/10108",
+                "description": "Sample text 1",
+                "name": "Rejected",
+                "id": "10108",
+                "statusCategory": {
+                  "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+                  "id": 3,
+                  "key": "done",
+                  "colorName": "success",
+                  "name": "Done"
+                }
+              },
+              "priority": {
+                "self": "https://jira.example.com/rest/api/2/priority/3",
+                "name": "Medium",
+                "id": "3"
+              },
+              "issuetype": {
+                "self": "https://jira.example.com/rest/api/2/issuetype/10003",
+                "id": "10003",
+                "description": "Sample text 7",
+                "name": "Sub-task",
+                "subtask": true
+              }
+            }
+          },
+          {
+            "id": "12221",
+            "key": "PROJ-82",
+            "self": "https://jira.example.com/rest/api/2/issue/12221",
+            "fields": {
+              "summary": "Sample text 13",
+              "status": {
+                "self": "https://jira.example.com/rest/api/2/status/10108",
+                "description": "Sample text 1",
+                "name": "Rejected",
+                "id": "10108",
+                "statusCategory": {
+                  "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+                  "id": 3,
+                  "key": "done",
+                  "colorName": "success",
+                  "name": "Done"
+                }
+              },
+              "priority": {
+                "self": "https://jira.example.com/rest/api/2/priority/3",
+                "name": "Medium",
+                "id": "3"
+              },
+              "issuetype": {
+                "self": "https://jira.example.com/rest/api/2/issuetype/10003",
+                "id": "10003",
+                "description": "Sample text 7",
+                "name": "Sub-task",
+                "subtask": true
+              }
+            }
+          },
+          {
+            "id": "12222",
+            "key": "PROJ-83",
+            "self": "https://jira.example.com/rest/api/2/issue/12222",
+            "fields": {
+              "summary": "Sample text 14",
+              "status": {
+                "self": "https://jira.example.com/rest/api/2/status/10108",
+                "description": "Sample text 1",
+                "name": "Rejected",
+                "id": "10108",
+                "statusCategory": {
+                  "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+                  "id": 3,
+                  "key": "done",
+                  "colorName": "success",
+                  "name": "Done"
+                }
+              },
+              "priority": {
+                "self": "https://jira.example.com/rest/api/2/priority/3",
+                "name": "Medium",
+                "id": "3"
+              },
+              "issuetype": {
+                "self": "https://jira.example.com/rest/api/2/issuetype/10003",
+                "id": "10003",
+                "description": "Sample text 7",
+                "name": "Sub-task",
+                "subtask": true
+              }
+            }
+          },
+          {
+            "id": "12223",
+            "key": "PROJ-84",
+            "self": "https://jira.example.com/rest/api/2/issue/12223",
+            "fields": {
+              "summary": "Sample text 15",
+              "status": {
+                "self": "https://jira.example.com/rest/api/2/status/10108",
+                "description": "Sample text 1",
+                "name": "Rejected",
+                "id": "10108",
+                "statusCategory": {
+                  "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+                  "id": 3,
+                  "key": "done",
+                  "colorName": "success",
+                  "name": "Done"
+                }
+              },
+              "priority": {
+                "self": "https://jira.example.com/rest/api/2/priority/3",
+                "name": "Medium",
+                "id": "3"
+              },
+              "issuetype": {
+                "self": "https://jira.example.com/rest/api/2/issuetype/10003",
+                "id": "10003",
+                "description": "Sample text 7",
+                "name": "Sub-task",
+                "subtask": true
+              }
+            }
+          },
+          {
+            "id": "12224",
+            "key": "PROJ-85",
+            "self": "https://jira.example.com/rest/api/2/issue/12224",
+            "fields": {
+              "summary": "Sample text 16",
+              "status": {
+                "self": "https://jira.example.com/rest/api/2/status/10108",
+                "description": "Sample text 1",
+                "name": "Rejected",
+                "id": "10108",
+                "statusCategory": {
+                  "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+                  "id": 3,
+                  "key": "done",
+                  "colorName": "success",
+                  "name": "Done"
+                }
+              },
+              "priority": {
+                "self": "https://jira.example.com/rest/api/2/priority/3",
+                "name": "Medium",
+                "id": "3"
+              },
+              "issuetype": {
+                "self": "https://jira.example.com/rest/api/2/issuetype/10003",
+                "id": "10003",
+                "description": "Sample text 7",
+                "name": "Sub-task",
+                "subtask": true
+              }
+            }
+          },
+          {
+            "id": "12225",
+            "key": "PROJ-86",
+            "self": "https://jira.example.com/rest/api/2/issue/12225",
+            "fields": {
+              "summary": "Sample text 17",
+              "status": {
+                "self": "https://jira.example.com/rest/api/2/status/10001",
+                "description": "Sample text 1",
+                "name": "Done",
+                "id": "10001",
+                "statusCategory": {
+                  "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+                  "id": 3,
+                  "key": "done",
+                  "colorName": "success",
+                  "name": "Done"
+                }
+              },
+              "priority": {
+                "self": "https://jira.example.com/rest/api/2/priority/3",
+                "name": "Medium",
+                "id": "3"
+              },
+              "issuetype": {
+                "self": "https://jira.example.com/rest/api/2/issuetype/10003",
+                "id": "10003",
+                "description": "Sample text 7",
+                "name": "Sub-task",
+                "subtask": true
+              }
+            }
+          },
+          {
+            "id": "12226",
+            "key": "PROJ-87",
+            "self": "https://jira.example.com/rest/api/2/issue/12226",
+            "fields": {
+              "summary": "Sample text 18",
+              "status": {
+                "self": "https://jira.example.com/rest/api/2/status/10001",
+                "description": "Sample text 1",
+                "name": "Done",
+                "id": "10001",
+                "statusCategory": {
+                  "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+                  "id": 3,
+                  "key": "done",
+                  "colorName": "success",
+                  "name": "Done"
+                }
+              },
+              "priority": {
+                "self": "https://jira.example.com/rest/api/2/priority/3",
+                "name": "Medium",
+                "id": "3"
+              },
+              "issuetype": {
+                "self": "https://jira.example.com/rest/api/2/issuetype/10003",
+                "id": "10003",
+                "description": "Sample text 7",
+                "name": "Sub-task",
+                "subtask": true
+              }
+            }
+          }
+        ],
+        "reporter": {
+          "self": "https://jira.example.com/rest/api/2/user?username=bob",
+          "name": "bob",
+          "key": "bob",
+          "emailAddress": "bob@example.com",
+          "displayName": "Bob",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "customfield_10000": "{summaryBean=com.atlassian.jira.plugin.devstatus.rest.SummaryBean@f2f0b9[summary={pullrequest=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@34b10e30[byInstanceType={},overall=PullRequestOverallBean{stateCount=0, state='OPEN', details=PullRequestOverallDetails{openCount=0, mergedCount=0, declinedCount=0}}], build=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@374328c3[byInstanceType={},overall=com.atlassian.jira.plugin.devstatus.summary.beans.BuildOverallBean@b3f6095[failedBuildCount=0,successfulBuildCount=0,unknownBuildCount=0,count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>]], review=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@165c78aa[byInstanceType={},overall=com.atlassian.jira.plugin.devstatus.summary.beans.ReviewsOverallBean@2d5e1074[dueDate=<null>,overDue=false,state=<null>,stateCount=0,count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>]], deployment-environment=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@375202c[byInstanceType={},overall=com.atlassian.jira.plugin.devstatus.summary.beans.DeploymentOverallBean@733ed31f[showProjects=false,successfulCount=0,topEnvironments=[],count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>]], repository=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@6526cfa[byInstanceType={},overall=com.atlassian.jira.plugin.devstatus.summary.beans.CommitOverallBean@5b5211f4[count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>]], branch=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@718c2ef2[byInstanceType={},overall=com.atlassian.jira.plugin.devstatus.summary.beans.BranchOverallBean@74afbdf7[count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>]]},configErrors=[],errors=[]], devSummaryJson={\"cachedValue\":{\"errors\":[],\"configErrors\":[],\"summary\":{\"pullrequest\":{\"overall\":{\"count\":0,\"lastUpdated\":null,\"stateCount\":0,\"state\":\"OPEN\",\"details\":{\"openCount\":0,\"mergedCount\":0,\"declinedCount\":0,\"total\":0},\"open\":true},\"byInstanceType\":{}},\"build\":{\"overall\":{\"count\":0,\"lastUpdated\":null,\"failedBuildCount\":0,\"successfulBuildCount\":0,\"unknownBuildCount\":0},\"byInstanceType\":{}},\"review\":{\"overall\":{\"count\":0,\"lastUpdated\":null,\"stateCount\":0,\"state\":null,\"dueDate\":null,\"overDue\":false,\"completed\":false},\"byInstanceType\":{}},\"deployment-environment\":{\"overall\":{\"count\":0,\"lastUpdated\":null,\"topEnvironments\":[],\"showProjects\":false,\"successfulCount\":0},\"byInstanceType\":{}},\"repository\":{\"overall\":{\"count\":0,\"lastUpdated\":null},\"byInstanceType\":{}},\"branch\":{\"overall\":{\"count\":0,\"lastUpdated\":null},\"byInstanceType\":{}}}},\"isStale\":false}}",
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10200": "",
+        "customfield_10400": null,
+        "environment": null,
+        "customfield_10712": null,
+        "duedate": null,
+        "customfield_10718": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "comment": {
+          "comments": [],
+          "maxResults": 0,
+          "total": 0,
+          "startAt": 0
+        },
+        "customfield_10719": null,
+        "votes": {
+          "self": "https://jira.example.com/rest/api/2/issue/PROJ-68/votes",
+          "votes": 0,
+          "hasVoted": false
+        },
+        "worklog": {
+          "startAt": 0,
+          "maxResults": 20,
+          "total": 0,
+          "worklogs": []
+        },
+        "archivedby": null
+      },
+      "renderedFields": null
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "12214",
+      "self": "https://jira.example.com/rest/agile/1.0/issue/12214",
+      "key": "PROJ-75",
+      "fields": {
+        "issuetype": {
+          "self": "https://jira.example.com/rest/api/2/issuetype/10003",
+          "id": "10003",
+          "description": "Sample text 7",
+          "name": "Sub-task",
+          "subtask": true
+        },
+        "parent": {
+          "id": "12061",
+          "key": "PROJ-68",
+          "self": "https://jira.example.com/rest/api/2/issue/12061",
+          "fields": {
+            "summary": "Sample text 5",
+            "status": {
+              "self": "https://jira.example.com/rest/api/2/status/10001",
+              "description": "Sample text 1",
+              "name": "Done",
+              "id": "10001",
+              "statusCategory": {
+                "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+                "id": 3,
+                "key": "done",
+                "colorName": "success",
+                "name": "Done"
+              }
+            },
+            "priority": {
+              "self": "https://jira.example.com/rest/api/2/priority/3",
+              "name": "Medium",
+              "id": "3"
+            },
+            "issuetype": {
+              "self": "https://jira.example.com/rest/api/2/issuetype/10001",
+              "id": "10001",
+              "description": "Sample text 2",
+              "name": "Story",
+              "subtask": false
+            }
+          }
+        },
+        "timespent": null,
+        "sprint": {
+          "id": 6,
+          "self": "https://jira.example.com/rest/agile/1.0/sprint/6",
+          "state": "active",
+          "name": "Sample name 1",
+          "startDate": "2025-09-07T18:16:00.000+00:00",
+          "endDate": "2025-09-14T18:16:00.000+00:00",
+          "activatedDate": "2025-09-07T11:17:05.551+00:00",
+          "originBoardId": 9,
+          "goal": "Sample text 1",
+          "synced": false,
+          "autoStartStop": false
+        },
+        "project": {
+          "self": "https://jira.example.com/rest/api/2/project/10500",
+          "id": "10500",
+          "key": "PROJ",
+          "name": "Project PROJ",
+          "projectTypeKey": "software",
+          "projectCategory": {
+            "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+            "id": "10001",
+            "description": "Sample text 1",
+            "name": "Example Corp"
+          }
+        },
+        "fixVersions": [],
+        "customfield_10111": null,
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10302": null,
+        "customfield_10700": null,
+        "customfield_10502": null,
+        "customfield_10503": null,
+        "customfield_10306": null,
+        "customfield_10108": null,
+        "customfield_10504": null,
+        "customfield_10109": [
+          "com.atlassian.greenhopper.service.sprint.Sprint@172f5d0b[activatedDate=2025-09-07T11:17:05.551+00:00,autoStartStop=false,completeDate=<null>,endDate=2025-09-14T18:16:00.000+00:00,goal=Sample text,id=6,incompleteIssuesDestinationId=<null>,name=Sample Sprint,rapidViewId=9,sequence=6,startDate=2025-09-07T18:16:00.000+00:00,state=ACTIVE,synced=false]"
+        ],
+        "customfield_10505": null,
+        "customfield_10506": null,
+        "resolutiondate": null,
+        "customfield_10705": null,
+        "customfield_10507": null,
+        "customfield_10706": null,
+        "customfield_10508": null,
+        "workratio": -1,
+        "lastViewed": null,
+        "watches": {
+          "self": "https://jira.example.com/rest/api/2/issue/PROJ-75/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "created": "2025-09-07T10:28:47.000+0000",
+        "priority": {
+          "self": "https://jira.example.com/rest/api/2/priority/3",
+          "name": "Medium",
+          "id": "3"
+        },
+        "customfield_10100": null,
+        "customfield_10101": null,
+        "customfield_10102": null,
+        "labels": [],
+        "customfield_10103": null,
+        "customfield_10301": null,
+        "customfield_10731": null,
+        "customfield_10732": null,
+        "customfield_10733": null,
+        "customfield_10734": null,
+        "timeestimate": null,
+        "aggregatetimeoriginalestimate": null,
+        "versions": [],
+        "issuelinks": [],
+        "assignee": {
+          "self": "https://jira.example.com/rest/api/2/user?username=carol",
+          "name": "carol",
+          "key": "carol",
+          "emailAddress": "carol@example.com",
+          "displayName": "Carol",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "updated": "2025-09-22T09:56:41.000+0000",
+        "status": {
+          "self": "https://jira.example.com/rest/api/2/status/10001",
+          "description": "Sample text 1",
+          "name": "Done",
+          "id": "10001",
+          "statusCategory": {
+            "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "success",
+            "name": "Done"
+          }
+        },
+        "components": [
+          {
+            "self": "https://jira.example.com/rest/api/2/component/10100",
+            "id": "10100",
+            "name": "Sample text 4"
+          }
+        ],
+        "timeoriginalestimate": null,
+        "description": null,
+        "timetracking": {},
+        "archiveddate": null,
+        "customfield_10730": null,
+        "customfield_10720": null,
+        "customfield_10600": [],
+        "customfield_10721": null,
+        "customfield_10601": null,
+        "customfield_10722": null,
+        "customfield_10602": null,
+        "customfield_10723": null,
+        "attachment": [],
+        "customfield_10724": null,
+        "customfield_10603": null,
+        "aggregatetimeestimate": null,
+        "flagged": false,
+        "customfield_10725": null,
+        "customfield_10604": null,
+        "customfield_10605": null,
+        "customfield_10726": null,
+        "customfield_10606": "0|i008lz:",
+        "customfield_10727": null,
+        "customfield_10728": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10729": null,
+        "summary": "Sample text 6",
+        "creator": {
+          "self": "https://jira.example.com/rest/api/2/user?username=dave",
+          "name": "dave",
+          "key": "dave",
+          "emailAddress": "dave@example.com",
+          "displayName": "Dave",
+          "active": false,
+          "timeZone": "UTC"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://jira.example.com/rest/api/2/user?username=dave",
+          "name": "dave",
+          "key": "dave",
+          "emailAddress": "dave@example.com",
+          "displayName": "Dave",
+          "active": false,
+          "timeZone": "UTC"
+        },
+        "customfield_10000": "{summaryBean=com.atlassian.jira.plugin.devstatus.rest.SummaryBean@4d2e6a37[summary={pullrequest=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@40242302[byInstanceType={},overall=PullRequestOverallBean{stateCount=0, state='OPEN', details=PullRequestOverallDetails{openCount=0, mergedCount=0, declinedCount=0}}], build=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@305749b1[byInstanceType={},overall=com.atlassian.jira.plugin.devstatus.summary.beans.BuildOverallBean@510a508a[failedBuildCount=0,successfulBuildCount=0,unknownBuildCount=0,count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>]], review=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@3f677da[byInstanceType={},overall=com.atlassian.jira.plugin.devstatus.summary.beans.ReviewsOverallBean@3af508f7[dueDate=<null>,overDue=false,state=<null>,stateCount=0,count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>]], deployment-environment=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@30e5d4d9[byInstanceType={},overall=com.atlassian.jira.plugin.devstatus.summary.beans.DeploymentOverallBean@33e85c4f[showProjects=false,successfulCount=0,topEnvironments=[],count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>]], repository=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@390a54f[byInstanceType={},overall=com.atlassian.jira.plugin.devstatus.summary.beans.CommitOverallBean@11b0b77a[count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>]], branch=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@fedea89[byInstanceType={},overall=com.atlassian.jira.plugin.devstatus.summary.beans.BranchOverallBean@7e16c51f[count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>]]},configErrors=[],errors=[]], devSummaryJson={\"cachedValue\":{\"errors\":[],\"configErrors\":[],\"summary\":{\"pullrequest\":{\"overall\":{\"count\":0,\"lastUpdated\":null,\"stateCount\":0,\"state\":\"OPEN\",\"details\":{\"openCount\":0,\"mergedCount\":0,\"declinedCount\":0,\"total\":0},\"open\":true},\"byInstanceType\":{}},\"build\":{\"overall\":{\"count\":0,\"lastUpdated\":null,\"failedBuildCount\":0,\"successfulBuildCount\":0,\"unknownBuildCount\":0},\"byInstanceType\":{}},\"review\":{\"overall\":{\"count\":0,\"lastUpdated\":null,\"stateCount\":0,\"state\":null,\"dueDate\":null,\"overDue\":false,\"completed\":false},\"byInstanceType\":{}},\"deployment-environment\":{\"overall\":{\"count\":0,\"lastUpdated\":null,\"topEnvironments\":[],\"showProjects\":false,\"successfulCount\":0},\"byInstanceType\":{}},\"repository\":{\"overall\":{\"count\":0,\"lastUpdated\":null},\"byInstanceType\":{}},\"branch\":{\"overall\":{\"count\":0,\"lastUpdated\":null},\"byInstanceType\":{}}}},\"isStale\":false}}",
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10200": "",
+        "customfield_10400": null,
+        "environment": null,
+        "customfield_10712": null,
+        "duedate": null,
+        "customfield_10718": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "comment": {
+          "comments": [],
+          "maxResults": 0,
+          "total": 0,
+          "startAt": 0
+        },
+        "customfield_10719": null,
+        "votes": {
+          "self": "https://jira.example.com/rest/api/2/issue/PROJ-75/votes",
+          "votes": 0,
+          "hasVoted": false
+        },
+        "worklog": {
+          "startAt": 0,
+          "maxResults": 20,
+          "total": 0,
+          "worklogs": []
+        },
+        "archivedby": null
+      },
+      "renderedFields": null
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "12215",
+      "self": "https://jira.example.com/rest/agile/1.0/issue/12215",
+      "key": "PROJ-76",
+      "fields": {
+        "issuetype": {
+          "self": "https://jira.example.com/rest/api/2/issuetype/10003",
+          "id": "10003",
+          "description": "Sample text 7",
+          "name": "Sub-task",
+          "subtask": true
+        },
+        "parent": {
+          "id": "12061",
+          "key": "PROJ-68",
+          "self": "https://jira.example.com/rest/api/2/issue/12061",
+          "fields": {
+            "summary": "Sample text 5",
+            "status": {
+              "self": "https://jira.example.com/rest/api/2/status/10001",
+              "description": "Sample text 1",
+              "name": "Done",
+              "id": "10001",
+              "statusCategory": {
+                "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+                "id": 3,
+                "key": "done",
+                "colorName": "success",
+                "name": "Done"
+              }
+            },
+            "priority": {
+              "self": "https://jira.example.com/rest/api/2/priority/3",
+              "name": "Medium",
+              "id": "3"
+            },
+            "issuetype": {
+              "self": "https://jira.example.com/rest/api/2/issuetype/10001",
+              "id": "10001",
+              "description": "Sample text 2",
+              "name": "Story",
+              "subtask": false
+            }
+          }
+        },
+        "timespent": null,
+        "sprint": {
+          "id": 6,
+          "self": "https://jira.example.com/rest/agile/1.0/sprint/6",
+          "state": "active",
+          "name": "Sample name 1",
+          "startDate": "2025-09-07T18:16:00.000+00:00",
+          "endDate": "2025-09-14T18:16:00.000+00:00",
+          "activatedDate": "2025-09-07T11:17:05.551+00:00",
+          "originBoardId": 9,
+          "goal": "Sample text 1",
+          "synced": false,
+          "autoStartStop": false
+        },
+        "project": {
+          "self": "https://jira.example.com/rest/api/2/project/10500",
+          "id": "10500",
+          "key": "PROJ",
+          "name": "Project PROJ",
+          "projectTypeKey": "software",
+          "projectCategory": {
+            "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+            "id": "10001",
+            "description": "Sample text 1",
+            "name": "Example Corp"
+          }
+        },
+        "fixVersions": [],
+        "customfield_10111": null,
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10302": null,
+        "customfield_10700": null,
+        "customfield_10502": null,
+        "customfield_10503": null,
+        "customfield_10306": null,
+        "customfield_10108": null,
+        "customfield_10504": null,
+        "customfield_10109": [
+          "com.atlassian.greenhopper.service.sprint.Sprint@172f5d0b[activatedDate=2025-09-07T11:17:05.551+00:00,autoStartStop=false,completeDate=<null>,endDate=2025-09-14T18:16:00.000+00:00,goal=Sample text,id=6,incompleteIssuesDestinationId=<null>,name=Sample Sprint,rapidViewId=9,sequence=6,startDate=2025-09-07T18:16:00.000+00:00,state=ACTIVE,synced=false]"
+        ],
+        "customfield_10505": null,
+        "customfield_10506": null,
+        "resolutiondate": null,
+        "customfield_10705": null,
+        "customfield_10507": null,
+        "customfield_10706": null,
+        "customfield_10508": null,
+        "workratio": -1,
+        "lastViewed": null,
+        "watches": {
+          "self": "https://jira.example.com/rest/api/2/issue/PROJ-76/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "created": "2025-09-07T10:32:06.000+0000",
+        "priority": {
+          "self": "https://jira.example.com/rest/api/2/priority/3",
+          "name": "Medium",
+          "id": "3"
+        },
+        "customfield_10100": null,
+        "customfield_10101": null,
+        "customfield_10102": null,
+        "labels": [],
+        "customfield_10103": null,
+        "customfield_10301": null,
+        "customfield_10731": null,
+        "customfield_10732": null,
+        "customfield_10733": null,
+        "customfield_10734": null,
+        "timeestimate": null,
+        "aggregatetimeoriginalestimate": null,
+        "versions": [],
+        "issuelinks": [],
+        "assignee": {
+          "self": "https://jira.example.com/rest/api/2/user?username=erin",
+          "name": "erin",
+          "key": "erin",
+          "emailAddress": "erin@example.com",
+          "displayName": "Erin",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "updated": "2025-09-21T10:52:58.000+0000",
+        "status": {
+          "self": "https://jira.example.com/rest/api/2/status/10108",
+          "description": "Sample text 1",
+          "name": "Rejected",
+          "id": "10108",
+          "statusCategory": {
+            "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "success",
+            "name": "Done"
+          }
+        },
+        "components": [
+          {
+            "self": "https://jira.example.com/rest/api/2/component/10100",
+            "id": "10100",
+            "name": "Sample text 4"
+          }
+        ],
+        "timeoriginalestimate": null,
+        "description": "Sample text 19",
+        "timetracking": {},
+        "archiveddate": null,
+        "customfield_10730": null,
+        "customfield_10720": null,
+        "customfield_10600": [],
+        "customfield_10721": null,
+        "customfield_10601": null,
+        "customfield_10722": null,
+        "customfield_10602": null,
+        "customfield_10723": null,
+        "attachment": [],
+        "customfield_10724": null,
+        "customfield_10603": null,
+        "aggregatetimeestimate": null,
+        "flagged": false,
+        "customfield_10725": null,
+        "customfield_10604": null,
+        "customfield_10605": null,
+        "customfield_10726": null,
+        "customfield_10606": "0|i008m7:",
+        "customfield_10727": null,
+        "customfield_10728": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10729": null,
+        "summary": "Sample text 8",
+        "creator": {
+          "self": "https://jira.example.com/rest/api/2/user?username=dave",
+          "name": "dave",
+          "key": "dave",
+          "emailAddress": "dave@example.com",
+          "displayName": "Dave",
+          "active": false,
+          "timeZone": "UTC"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://jira.example.com/rest/api/2/user?username=dave",
+          "name": "dave",
+          "key": "dave",
+          "emailAddress": "dave@example.com",
+          "displayName": "Dave",
+          "active": false,
+          "timeZone": "UTC"
+        },
+        "customfield_10000": "{summaryBean=com.atlassian.jira.plugin.devstatus.rest.SummaryBean@7f9a26a5[summary={pullrequest=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@24db0642[byInstanceType={},overall=PullRequestOverallBean{stateCount=0, state='OPEN', details=PullRequestOverallDetails{openCount=0, mergedCount=0, declinedCount=0}}], build=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@a3a64b8[byInstanceType={},overall=com.atlassian.jira.plugin.devstatus.summary.beans.BuildOverallBean@762f9aab[failedBuildCount=0,successfulBuildCount=0,unknownBuildCount=0,count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>]], review=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@5e646962[byInstanceType={},overall=com.atlassian.jira.plugin.devstatus.summary.beans.ReviewsOverallBean@24a9a44b[dueDate=<null>,overDue=false,state=<null>,stateCount=0,count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>]], deployment-environment=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@7d6f1bc2[byInstanceType={},overall=com.atlassian.jira.plugin.devstatus.summary.beans.DeploymentOverallBean@771f3c06[showProjects=false,successfulCount=0,topEnvironments=[],count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>]], repository=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@a4d64fe[byInstanceType={},overall=com.atlassian.jira.plugin.devstatus.summary.beans.CommitOverallBean@63af1200[count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>]], branch=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@669ba4bc[byInstanceType={},overall=com.atlassian.jira.plugin.devstatus.summary.beans.BranchOverallBean@68ea4b65[count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>]]},configErrors=[],errors=[]], devSummaryJson={\"cachedValue\":{\"errors\":[],\"configErrors\":[],\"summary\":{\"pullrequest\":{\"overall\":{\"count\":0,\"lastUpdated\":null,\"stateCount\":0,\"state\":\"OPEN\",\"details\":{\"openCount\":0,\"mergedCount\":0,\"declinedCount\":0,\"total\":0},\"open\":true},\"byInstanceType\":{}},\"build\":{\"overall\":{\"count\":0,\"lastUpdated\":null,\"failedBuildCount\":0,\"successfulBuildCount\":0,\"unknownBuildCount\":0},\"byInstanceType\":{}},\"review\":{\"overall\":{\"count\":0,\"lastUpdated\":null,\"stateCount\":0,\"state\":null,\"dueDate\":null,\"overDue\":false,\"completed\":false},\"byInstanceType\":{}},\"deployment-environment\":{\"overall\":{\"count\":0,\"lastUpdated\":null,\"topEnvironments\":[],\"showProjects\":false,\"successfulCount\":0},\"byInstanceType\":{}},\"repository\":{\"overall\":{\"count\":0,\"lastUpdated\":null},\"byInstanceType\":{}},\"branch\":{\"overall\":{\"count\":0,\"lastUpdated\":null},\"byInstanceType\":{}}}},\"isStale\":false}}",
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10200": "",
+        "customfield_10400": null,
+        "environment": null,
+        "customfield_10712": null,
+        "duedate": null,
+        "customfield_10718": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "comment": {
+          "comments": [],
+          "maxResults": 0,
+          "total": 0,
+          "startAt": 0
+        },
+        "customfield_10719": null,
+        "votes": {
+          "self": "https://jira.example.com/rest/api/2/issue/PROJ-76/votes",
+          "votes": 0,
+          "hasVoted": false
+        },
+        "worklog": {
+          "startAt": 0,
+          "maxResults": 20,
+          "total": 0,
+          "worklogs": []
+        },
+        "archivedby": null
+      },
+      "renderedFields": null
+    }
+  ],
+  "warningMessages": null,
+  "names": null,
+  "schema": null
+}

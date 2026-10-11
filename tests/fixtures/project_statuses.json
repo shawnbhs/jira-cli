@@ -1,0 +1,432 @@
+[
+  {
+    "self": "https://jira.example.com/rest/api/2/issuetype/10002",
+    "id": "10002",
+    "name": "Task",
+    "subtask": false,
+    "statuses": [
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10100",
+        "description": "Sample text 1",
+        "name": "Backlog",
+        "id": "10100",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/2",
+          "id": 2,
+          "key": "new",
+          "colorName": "default",
+          "name": "To Do"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10101",
+        "description": "Sample text 1",
+        "name": "TODO",
+        "id": "10101",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/2",
+          "id": 2,
+          "key": "new",
+          "colorName": "default",
+          "name": "To Do"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10417",
+        "description": "Sample text 1",
+        "name": "In Progress",
+        "id": "10417",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/4",
+          "id": 4,
+          "key": "indeterminate",
+          "colorName": "inprogress",
+          "name": "In Progress"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10001",
+        "description": "Sample text 1",
+        "name": "Done",
+        "id": "10001",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+          "id": 3,
+          "key": "done",
+          "colorName": "success",
+          "name": "Done"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10415",
+        "description": "Sample text 1",
+        "name": "Quality Review",
+        "id": "10415",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/4",
+          "id": 4,
+          "key": "indeterminate",
+          "colorName": "inprogress",
+          "name": "In Progress"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10416",
+        "description": "Sample text 1",
+        "name": "Test",
+        "id": "10416",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/4",
+          "id": 4,
+          "key": "indeterminate",
+          "colorName": "inprogress",
+          "name": "In Progress"
+        }
+      }
+    ]
+  },
+  {
+    "self": "https://jira.example.com/rest/api/2/issuetype/10003",
+    "id": "10003",
+    "name": "Sub-task",
+    "subtask": true,
+    "statuses": [
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10100",
+        "description": "Sample text 1",
+        "name": "Backlog",
+        "id": "10100",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/2",
+          "id": 2,
+          "key": "new",
+          "colorName": "default",
+          "name": "To Do"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10101",
+        "description": "Sample text 1",
+        "name": "TODO",
+        "id": "10101",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/2",
+          "id": 2,
+          "key": "new",
+          "colorName": "default",
+          "name": "To Do"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10417",
+        "description": "Sample text 1",
+        "name": "In Progress",
+        "id": "10417",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/4",
+          "id": 4,
+          "key": "indeterminate",
+          "colorName": "inprogress",
+          "name": "In Progress"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10001",
+        "description": "Sample text 1",
+        "name": "Done",
+        "id": "10001",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+          "id": 3,
+          "key": "done",
+          "colorName": "success",
+          "name": "Done"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10415",
+        "description": "Sample text 1",
+        "name": "Quality Review",
+        "id": "10415",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/4",
+          "id": 4,
+          "key": "indeterminate",
+          "colorName": "inprogress",
+          "name": "In Progress"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10416",
+        "description": "Sample text 1",
+        "name": "Test",
+        "id": "10416",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/4",
+          "id": 4,
+          "key": "indeterminate",
+          "colorName": "inprogress",
+          "name": "In Progress"
+        }
+      }
+    ]
+  },
+  {
+    "self": "https://jira.example.com/rest/api/2/issuetype/10001",
+    "id": "10001",
+    "name": "Story",
+    "subtask": false,
+    "statuses": [
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10100",
+        "description": "Sample text 1",
+        "name": "Backlog",
+        "id": "10100",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/2",
+          "id": 2,
+          "key": "new",
+          "colorName": "default",
+          "name": "To Do"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10101",
+        "description": "Sample text 1",
+        "name": "TODO",
+        "id": "10101",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/2",
+          "id": 2,
+          "key": "new",
+          "colorName": "default",
+          "name": "To Do"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10417",
+        "description": "Sample text 1",
+        "name": "In Progress",
+        "id": "10417",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/4",
+          "id": 4,
+          "key": "indeterminate",
+          "colorName": "inprogress",
+          "name": "In Progress"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10001",
+        "description": "Sample text 1",
+        "name": "Done",
+        "id": "10001",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+          "id": 3,
+          "key": "done",
+          "colorName": "success",
+          "name": "Done"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10415",
+        "description": "Sample text 1",
+        "name": "Quality Review",
+        "id": "10415",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/4",
+          "id": 4,
+          "key": "indeterminate",
+          "colorName": "inprogress",
+          "name": "In Progress"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10416",
+        "description": "Sample text 1",
+        "name": "Test",
+        "id": "10416",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/4",
+          "id": 4,
+          "key": "indeterminate",
+          "colorName": "inprogress",
+          "name": "In Progress"
+        }
+      }
+    ]
+  },
+  {
+    "self": "https://jira.example.com/rest/api/2/issuetype/10004",
+    "id": "10004",
+    "name": "Bug",
+    "subtask": false,
+    "statuses": [
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10100",
+        "description": "Sample text 1",
+        "name": "Backlog",
+        "id": "10100",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/2",
+          "id": 2,
+          "key": "new",
+          "colorName": "default",
+          "name": "To Do"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10101",
+        "description": "Sample text 1",
+        "name": "TODO",
+        "id": "10101",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/2",
+          "id": 2,
+          "key": "new",
+          "colorName": "default",
+          "name": "To Do"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10417",
+        "description": "Sample text 1",
+        "name": "In Progress",
+        "id": "10417",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/4",
+          "id": 4,
+          "key": "indeterminate",
+          "colorName": "inprogress",
+          "name": "In Progress"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10001",
+        "description": "Sample text 1",
+        "name": "Done",
+        "id": "10001",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+          "id": 3,
+          "key": "done",
+          "colorName": "success",
+          "name": "Done"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10415",
+        "description": "Sample text 1",
+        "name": "Quality Review",
+        "id": "10415",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/4",
+          "id": 4,
+          "key": "indeterminate",
+          "colorName": "inprogress",
+          "name": "In Progress"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10416",
+        "description": "Sample text 1",
+        "name": "Test",
+        "id": "10416",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/4",
+          "id": 4,
+          "key": "indeterminate",
+          "colorName": "inprogress",
+          "name": "In Progress"
+        }
+      }
+    ]
+  },
+  {
+    "self": "https://jira.example.com/rest/api/2/issuetype/10000",
+    "id": "10000",
+    "name": "Epic",
+    "subtask": false,
+    "statuses": [
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10100",
+        "description": "Sample text 1",
+        "name": "Backlog",
+        "id": "10100",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/2",
+          "id": 2,
+          "key": "new",
+          "colorName": "default",
+          "name": "To Do"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10101",
+        "description": "Sample text 1",
+        "name": "TODO",
+        "id": "10101",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/2",
+          "id": 2,
+          "key": "new",
+          "colorName": "default",
+          "name": "To Do"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10417",
+        "description": "Sample text 1",
+        "name": "In Progress",
+        "id": "10417",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/4",
+          "id": 4,
+          "key": "indeterminate",
+          "colorName": "inprogress",
+          "name": "In Progress"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10001",
+        "description": "Sample text 1",
+        "name": "Done",
+        "id": "10001",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+          "id": 3,
+          "key": "done",
+          "colorName": "success",
+          "name": "Done"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10415",
+        "description": "Sample text 1",
+        "name": "Quality Review",
+        "id": "10415",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/4",
+          "id": 4,
+          "key": "indeterminate",
+          "colorName": "inprogress",
+          "name": "In Progress"
+        }
+      },
+      {
+        "self": "https://jira.example.com/rest/api/2/status/10416",
+        "description": "Sample text 1",
+        "name": "Test",
+        "id": "10416",
+        "statusCategory": {
+          "self": "https://jira.example.com/rest/api/2/statuscategory/4",
+          "id": 4,
+          "key": "indeterminate",
+          "colorName": "inprogress",
+          "name": "In Progress"
+        }
+      }
+    ]
+  }
+]

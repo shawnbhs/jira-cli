@@ -1,0 +1,39 @@
+{
+  "suggestions": [],
+  "allMatches": [
+    {
+      "name": "Sample name 1",
+      "id": 6,
+      "stateKey": "ACTIVE",
+      "boardName": "Sample name 2",
+      "date": "2025-09-07T18:16:0Z"
+    },
+    {
+      "name": "Sample name 3",
+      "id": 7,
+      "stateKey": "FUTURE",
+      "boardName": "Sample name 2",
+      "date": ""
+    },
+    {
+      "name": "Sample name 4",
+      "id": 8,
+      "stateKey": "FUTURE",
+      "boardName": "Sample name 2",
+      "date": ""
+    },
+    {
+      "name": "Sample name 5",
+      "id": 10,
+      "stateKey": "FUTURE",
+      "date": ""
+    },
+    {
+      "name": "Sample name 6",
+      "id": 15,
+      "stateKey": "ACTIVE",
+      "boardName": "Sample name 7",
+      "date": "2026-10-11T09:00:0Z"
+    }
+  ]
+}

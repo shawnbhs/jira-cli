@@ -1,0 +1,65 @@
+{
+  "startAt": 0,
+  "maxResults": 2,
+  "total": 2,
+  "worklogs": [
+    {
+      "self": "https://jira.example.com/rest/api/2/issue/17697/worklog/11822",
+      "author": {
+        "self": "https://jira.example.com/rest/api/2/user?username=bob",
+        "name": "bob",
+        "key": "bob",
+        "emailAddress": "bob@example.com",
+        "displayName": "Bob",
+        "active": true,
+        "timeZone": "UTC"
+      },
+      "updateAuthor": {
+        "self": "https://jira.example.com/rest/api/2/user?username=bob",
+        "name": "bob",
+        "key": "bob",
+        "emailAddress": "bob@example.com",
+        "displayName": "Bob",
+        "active": true,
+        "timeZone": "UTC"
+      },
+      "comment": "Sample text 1",
+      "created": "2026-10-11T12:09:21.101+0000",
+      "updated": "2026-10-11T12:09:21.101+0000",
+      "started": "2026-10-11T12:09:00.000+0000",
+      "timeSpent": "30m",
+      "timeSpentSeconds": 1800,
+      "id": "11822",
+      "issueId": "17697"
+    },
+    {
+      "self": "https://jira.example.com/rest/api/2/issue/17697/worklog/11824",
+      "author": {
+        "self": "https://jira.example.com/rest/api/2/user?username=bob",
+        "name": "bob",
+        "key": "bob",
+        "emailAddress": "bob@example.com",
+        "displayName": "Bob",
+        "active": true,
+        "timeZone": "UTC"
+      },
+      "updateAuthor": {
+        "self": "https://jira.example.com/rest/api/2/user?username=bob",
+        "name": "bob",
+        "key": "bob",
+        "emailAddress": "bob@example.com",
+        "displayName": "Bob",
+        "active": true,
+        "timeZone": "UTC"
+      },
+      "comment": "Sample text 1",
+      "created": "2026-10-11T12:37:31.064+0000",
+      "updated": "2026-10-11T12:37:31.064+0000",
+      "started": "2026-10-11T12:37:00.000+0000",
+      "timeSpent": "10m",
+      "timeSpentSeconds": 600,
+      "id": "11824",
+      "issueId": "17697"
+    }
+  ]
+}

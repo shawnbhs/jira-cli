@@ -1,0 +1,57 @@
+{
+  "startAt": 0,
+  "maxResults": 1048576,
+  "total": 2,
+  "comments": [
+    {
+      "self": "https://jira.example.com/rest/api/2/issue/17697/comment/11232",
+      "id": "11232",
+      "author": {
+        "self": "https://jira.example.com/rest/api/2/user?username=carol",
+        "name": "carol",
+        "key": "carol",
+        "emailAddress": "carol@example.com",
+        "displayName": "Carol",
+        "active": true,
+        "timeZone": "UTC"
+      },
+      "body": "Sample text 27",
+      "updateAuthor": {
+        "self": "https://jira.example.com/rest/api/2/user?username=carol",
+        "name": "carol",
+        "key": "carol",
+        "emailAddress": "carol@example.com",
+        "displayName": "Carol",
+        "active": true,
+        "timeZone": "UTC"
+      },
+      "created": "2026-10-11T11:13:58.866+0000",
+      "updated": "2026-10-11T11:13:58.866+0000"
+    },
+    {
+      "self": "https://jira.example.com/rest/api/2/issue/17697/comment/11233",
+      "id": "11233",
+      "author": {
+        "self": "https://jira.example.com/rest/api/2/user?username=carol",
+        "name": "carol",
+        "key": "carol",
+        "emailAddress": "carol@example.com",
+        "displayName": "Carol",
+        "active": true,
+        "timeZone": "UTC"
+      },
+      "body": "Sample text 28",
+      "updateAuthor": {
+        "self": "https://jira.example.com/rest/api/2/user?username=carol",
+        "name": "carol",
+        "key": "carol",
+        "emailAddress": "carol@example.com",
+        "displayName": "Carol",
+        "active": true,
+        "timeZone": "UTC"
+      },
+      "created": "2026-10-11T11:31:40.532+0000",
+      "updated": "2026-10-11T11:31:40.532+0000"
+    }
+  ]
+}

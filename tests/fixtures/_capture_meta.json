@@ -1,0 +1,228 @@
+{
+  "server": "Jira Software Server 10.3.0 (sanitized capture)",
+  "requests": 37,
+  "endpoints": [
+    {
+      "label": "serverinfo",
+      "path": "/rest/api/2/serverInfo",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "myself",
+      "path": "/rest/api/2/myself",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "project_list",
+      "path": "/rest/api/2/project",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "project_detail",
+      "path": "/rest/api/2/project/PRJ19",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "createmeta",
+      "path": "/rest/api/2/issue/createmeta",
+      "status": 404,
+      "error": "http 404"
+    },
+    {
+      "label": "createmeta_issuetypes",
+      "path": "/rest/api/2/issue/createmeta/PRJ19/issuetypes",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "createmeta_fields",
+      "path": "/rest/api/2/issue/createmeta/PRJ19/issuetypes/10000",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "board_list",
+      "path": "/rest/agile/1.0/board",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "scrum_board_lookup",
+      "path": "/rest/agile/1.0/board",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "scrum_board_sprints",
+      "path": "/rest/agile/1.0/board/18/sprint",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "scrum_board_sprints_1",
+      "path": "/rest/agile/1.0/board/17/sprint",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "scrum_board_sprints_2",
+      "path": "/rest/agile/1.0/board/15/sprint",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "scrum_board_sprints_3",
+      "path": "/rest/agile/1.0/board/23/sprint",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "scrum_board_sprints_4",
+      "path": "/rest/agile/1.0/board/13/sprint",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "scrum_board_sprints_5",
+      "path": "/rest/agile/1.0/board/28/sprint",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "scrum_board_sprints_6",
+      "path": "/rest/agile/1.0/board/25/sprint",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "scrum_board_sprints_7",
+      "path": "/rest/agile/1.0/board/24/sprint",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "search_changelog",
+      "path": "/rest/api/2/search",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "issue_worklog",
+      "path": "/rest/api/2/issue/PRJ21-567/worklog",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "issue_comments",
+      "path": "/rest/api/2/issue/PRJ21-567/comment",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "field_list",
+      "path": "/rest/api/2/field",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "user_search",
+      "path": "/rest/api/2/user/search",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "user_assignable",
+      "path": "/rest/api/2/user/assignable/search",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "priority",
+      "path": "/rest/api/2/priority",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "project_statuses",
+      "path": "/rest/api/2/project/PRJ19/statuses",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "issue_link_types",
+      "path": "/rest/api/2/issueLinkType",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "filter_favourite",
+      "path": "/rest/api/2/filter/favourite",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "greenhopper_velocity",
+      "path": "/rest/greenhopper/1.0/rapid/charts/velocity.json",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "greenhopper_sprintpicker",
+      "path": "/rest/greenhopper/1.0/sprint/picker",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "sprint_detail",
+      "path": "/rest/agile/1.0/sprint/6",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "sprint_issues",
+      "path": "/rest/agile/1.0/sprint/6/issue",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "greenhopper_sprintreport",
+      "path": "/rest/greenhopper/1.0/rapid/charts/sprintreport",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "greenhopper_velocity",
+      "path": "/rest/greenhopper/1.0/rapid/charts/velocity.json",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "greenhopper_sprintpicker",
+      "path": "/rest/greenhopper/1.0/sprint/picker",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "sprint_detail",
+      "path": "/rest/agile/1.0/sprint/6",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "sprint_issues",
+      "path": "/rest/agile/1.0/sprint/6/issue",
+      "status": 200,
+      "error": ""
+    },
+    {
+      "label": "greenhopper_sprintreport",
+      "path": "/rest/greenhopper/1.0/rapid/charts/sprintreport",
+      "status": 200,
+      "error": ""
+    }
+  ]
+}

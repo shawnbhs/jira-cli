@@ -1,0 +1,128 @@
+{
+  "maxResults": 20,
+  "startAt": 0,
+  "total": 22,
+  "isLast": false,
+  "values": [
+    {
+      "id": 18,
+      "self": "https://jira.example.com/rest/agile/1.0/board/18",
+      "name": "Sample name 2",
+      "type": "scrum"
+    },
+    {
+      "id": 17,
+      "self": "https://jira.example.com/rest/agile/1.0/board/17",
+      "name": "Sample name 3",
+      "type": "scrum"
+    },
+    {
+      "id": 15,
+      "self": "https://jira.example.com/rest/agile/1.0/board/15",
+      "name": "Sample name 4",
+      "type": "scrum"
+    },
+    {
+      "id": 23,
+      "self": "https://jira.example.com/rest/agile/1.0/board/23",
+      "name": "Sample name 5",
+      "type": "scrum"
+    },
+    {
+      "id": 13,
+      "self": "https://jira.example.com/rest/agile/1.0/board/13",
+      "name": "Sample name 6",
+      "type": "scrum"
+    },
+    {
+      "id": 28,
+      "self": "https://jira.example.com/rest/agile/1.0/board/28",
+      "name": "Sample name 7",
+      "type": "scrum"
+    },
+    {
+      "id": 25,
+      "self": "https://jira.example.com/rest/agile/1.0/board/25",
+      "name": "Sample name 8",
+      "type": "scrum"
+    },
+    {
+      "id": 24,
+      "self": "https://jira.example.com/rest/agile/1.0/board/24",
+      "name": "Sample name 9",
+      "type": "scrum"
+    },
+    {
+      "id": 29,
+      "self": "https://jira.example.com/rest/agile/1.0/board/29",
+      "name": "Sample name 10",
+      "type": "scrum"
+    },
+    {
+      "id": 1,
+      "self": "https://jira.example.com/rest/agile/1.0/board/1",
+      "name": "Sample name 11",
+      "type": "scrum"
+    },
+    {
+      "id": 14,
+      "self": "https://jira.example.com/rest/agile/1.0/board/14",
+      "name": "Sample name 12",
+      "type": "scrum"
+    },
+    {
+      "id": 9,
+      "self": "https://jira.example.com/rest/agile/1.0/board/9",
+      "name": "Sample name 13",
+      "type": "scrum"
+    },
+    {
+      "id": 47,
+      "self": "https://jira.example.com/rest/agile/1.0/board/47",
+      "name": "Sample name 14",
+      "type": "scrum"
+    },
+    {
+      "id": 27,
+      "self": "https://jira.example.com/rest/agile/1.0/board/27",
+      "name": "Sample name 15",
+      "type": "scrum"
+    },
+    {
+      "id": 20,
+      "self": "https://jira.example.com/rest/agile/1.0/board/20",
+      "name": "Sample name 16",
+      "type": "scrum"
+    },
+    {
+      "id": 11,
+      "self": "https://jira.example.com/rest/agile/1.0/board/11",
+      "name": "Sample name 17",
+      "type": "scrum"
+    },
+    {
+      "id": 12,
+      "self": "https://jira.example.com/rest/agile/1.0/board/12",
+      "name": "Sample name 18",
+      "type": "scrum"
+    },
+    {
+      "id": 10,
+      "self": "https://jira.example.com/rest/agile/1.0/board/10",
+      "name": "Sample name 19",
+      "type": "scrum"
+    },
+    {
+      "id": 31,
+      "self": "https://jira.example.com/rest/agile/1.0/board/31",
+      "name": "Sample name 20",
+      "type": "scrum"
+    },
+    {
+      "id": 3,
+      "self": "https://jira.example.com/rest/agile/1.0/board/3",
+      "name": "Sample name 21",
+      "type": "scrum"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+[
+  {
+    "self": "https://jira.example.com/rest/api/2/user?username=lena",
+    "key": "lena",
+    "name": "lena",
+    "emailAddress": "lena@example.com",
+    "displayName": "Lena",
+    "active": true,
+    "deleted": false,
+    "timeZone": "UTC",
+    "locale": "en"
+  },
+  {
+    "self": "https://jira.example.com/rest/api/2/user?username=grace",
+    "key": "grace",
+    "name": "grace",
+    "emailAddress": "grace@example.com",
+    "displayName": "Grace",
+    "active": true,
+    "deleted": false,
+    "timeZone": "UTC",
+    "locale": "en"
+  },
+  {
+    "self": "https://jira.example.com/rest/api/2/user?username=mallory",
+    "key": "mallory",
+    "name": "mallory",
+    "emailAddress": "mallory@example.com",
+    "displayName": "Mallory",
+    "active": true,
+    "deleted": false,
+    "timeZone": "UTC",
+    "locale": "en"
+  },
+  {
+    "self": "https://jira.example.com/rest/api/2/user?username=niaj",
+    "key": "niaj",
+    "name": "niaj",
+    "emailAddress": "niaj@example.com",
+    "displayName": "Niaj",
+    "active": true,
+    "deleted": false,
+    "timeZone": "UTC",
+    "locale": "en"
+  },
+  {
+    "self": "https://jira.example.com/rest/api/2/user?username=olivia",
+    "key": "olivia",
+    "name": "olivia",
+    "emailAddress": "olivia@example.com",
+    "displayName": "Olivia",
+    "active": true,
+    "deleted": false,
+    "timeZone": "UTC",
+    "locale": "en"
+  }
+]

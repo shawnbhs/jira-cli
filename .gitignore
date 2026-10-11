@@ -1,0 +1,38 @@
+# --- secrets: never commit a real environment file ---
+.env
+.env*
+*.env
+!.env.example
+
+# --- virtual environments ---
+.venv/
+venv/
+
+# --- python bytecode / build artifacts ---
+__pycache__/
+*.py[cod]
+dist/
+build/
+*.egg-info/
+
+# --- tool caches ---
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# --- local state and generated output ---
+# plan apply state files map local refs to created issue keys
+*.applied.json
+plans/
+reports/
+.scan-out/
+
+# --- Windows download markers (alternate data streams copied into WSL) ---
+*:Zone.Identifier
+*.Zone.Identifier
+
+# --- local configuration that names real people, projects and boards ---
+teams.yaml
+filters.yaml

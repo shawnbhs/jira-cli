@@ -1,0 +1,16 @@
+{
+  "baseUrl": "https://jira.example.com",
+  "version": "10.3.0",
+  "versionNumbers": [
+    10,
+    3,
+    0
+  ],
+  "deploymentType": "Server",
+  "buildNumber": 10030000,
+  "buildDate": "2024-12-05T00:00:00.000+0000",
+  "databaseBuildNumber": 10030000,
+  "serverTime": "2026-10-11T13:30:26.342+0000",
+  "scmInfo": "8033b888374e935e18ca5e5aaef7c7a7177bd21e",
+  "serverTitle": "Jira"
+}

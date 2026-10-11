@@ -1,0 +1,43 @@
+{
+  "maxResults": 50,
+  "startAt": 0,
+  "total": 5,
+  "isLast": true,
+  "values": [
+    {
+      "self": "https://jira.example.com/rest/api/2/issuetype/10000",
+      "id": "10000",
+      "description": "Sample text 17",
+      "name": "Epic",
+      "subtask": false
+    },
+    {
+      "self": "https://jira.example.com/rest/api/2/issuetype/10001",
+      "id": "10001",
+      "description": "Sample text 15",
+      "name": "Story",
+      "subtask": false
+    },
+    {
+      "self": "https://jira.example.com/rest/api/2/issuetype/10002",
+      "id": "10002",
+      "description": "Sample text 13",
+      "name": "Task",
+      "subtask": false
+    },
+    {
+      "self": "https://jira.example.com/rest/api/2/issuetype/10003",
+      "id": "10003",
+      "description": "Sample text 14",
+      "name": "Sub-task",
+      "subtask": true
+    },
+    {
+      "self": "https://jira.example.com/rest/api/2/issuetype/10004",
+      "id": "10004",
+      "description": "Sample text 16",
+      "name": "Bug",
+      "subtask": false
+    }
+  ]
+}

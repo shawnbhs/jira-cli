@@ -1,0 +1,326 @@
+{
+  "maxResults": 200,
+  "startAt": 0,
+  "total": 14,
+  "isLast": true,
+  "values": [
+    {
+      "required": true,
+      "schema": {
+        "type": "string",
+        "custom": "com.pyxis.greenhopper.jira:gh-epic-label",
+        "customId": 10104
+      },
+      "name": "Epic Name",
+      "fieldId": "customfield_10104",
+      "hasDefaultValue": false,
+      "operations": [
+        "set"
+      ]
+    },
+    {
+      "required": true,
+      "schema": {
+        "type": "string",
+        "system": "summary"
+      },
+      "name": "Summary",
+      "fieldId": "summary",
+      "hasDefaultValue": false,
+      "operations": [
+        "set"
+      ]
+    },
+    {
+      "required": true,
+      "schema": {
+        "type": "issuetype",
+        "system": "issuetype"
+      },
+      "name": "Issue Type",
+      "fieldId": "issuetype",
+      "hasDefaultValue": false,
+      "operations": [],
+      "allowedValues": [
+        {
+          "self": "https://jira.example.com/rest/api/2/issuetype/10000",
+          "id": "10000",
+          "description": "Sample text 17",
+          "name": "Epic",
+          "subtask": false
+        }
+      ]
+    },
+    {
+      "required": true,
+      "schema": {
+        "type": "user",
+        "system": "reporter"
+      },
+      "name": "Reporter",
+      "fieldId": "reporter",
+      "autoCompleteUrl": "https://jira.example.com/rest/api/latest/user/search?username=",
+      "hasDefaultValue": false,
+      "operations": [
+        "set"
+      ]
+    },
+    {
+      "required": false,
+      "schema": {
+        "type": "array",
+        "items": "component",
+        "system": "components"
+      },
+      "name": "Component/s",
+      "fieldId": "components",
+      "hasDefaultValue": false,
+      "operations": [
+        "add",
+        "set",
+        "remove"
+      ],
+      "allowedValues": [
+        {
+          "self": "https://jira.example.com/rest/api/2/component/10410",
+          "id": "10410",
+          "name": "Component A",
+          "description": "Sample text 3"
+        },
+        {
+          "self": "https://jira.example.com/rest/api/2/component/10404",
+          "id": "10404",
+          "name": "Component B",
+          "description": "Sample text 4"
+        },
+        {
+          "self": "https://jira.example.com/rest/api/2/component/10409",
+          "id": "10409",
+          "name": "Component C",
+          "description": "Sample text 5"
+        },
+        {
+          "self": "https://jira.example.com/rest/api/2/component/10412",
+          "id": "10412",
+          "name": "Component D",
+          "description": "Sample text 6"
+        },
+        {
+          "self": "https://jira.example.com/rest/api/2/component/10405",
+          "id": "10405",
+          "name": "Component E",
+          "description": "Sample text 7"
+        },
+        {
+          "self": "https://jira.example.com/rest/api/2/component/10408",
+          "id": "10408",
+          "name": "Component F",
+          "description": "Sample text 8"
+        },
+        {
+          "self": "https://jira.example.com/rest/api/2/component/10407",
+          "id": "10407",
+          "name": "Component G",
+          "description": "Sample text 9"
+        },
+        {
+          "self": "https://jira.example.com/rest/api/2/component/10406",
+          "id": "10406",
+          "name": "Component H",
+          "description": "Sample text 10"
+        },
+        {
+          "self": "https://jira.example.com/rest/api/2/component/10413",
+          "id": "10413",
+          "name": "Component I",
+          "description": "Sample text 11"
+        },
+        {
+          "self": "https://jira.example.com/rest/api/2/component/10411",
+          "id": "10411",
+          "name": "Component J",
+          "description": "Sample text 12"
+        }
+      ]
+    },
+    {
+      "required": false,
+      "schema": {
+        "type": "string",
+        "system": "description"
+      },
+      "name": "Description",
+      "fieldId": "description",
+      "hasDefaultValue": false,
+      "operations": [
+        "set"
+      ]
+    },
+    {
+      "required": false,
+      "schema": {
+        "type": "array",
+        "items": "version",
+        "system": "fixVersions"
+      },
+      "name": "Fix Version/s",
+      "fieldId": "fixVersions",
+      "hasDefaultValue": false,
+      "operations": [
+        "set",
+        "add",
+        "remove"
+      ],
+      "allowedValues": []
+    },
+    {
+      "required": false,
+      "schema": {
+        "type": "priority",
+        "system": "priority"
+      },
+      "name": "Priority",
+      "fieldId": "priority",
+      "hasDefaultValue": true,
+      "operations": [
+        "set"
+      ],
+      "allowedValues": [
+        {
+          "self": "https://jira.example.com/rest/api/2/priority/1",
+          "name": "Highest",
+          "id": "1"
+        },
+        {
+          "self": "https://jira.example.com/rest/api/2/priority/2",
+          "name": "High",
+          "id": "2"
+        },
+        {
+          "self": "https://jira.example.com/rest/api/2/priority/3",
+          "name": "Medium",
+          "id": "3"
+        },
+        {
+          "self": "https://jira.example.com/rest/api/2/priority/4",
+          "name": "Low",
+          "id": "4"
+        },
+        {
+          "self": "https://jira.example.com/rest/api/2/priority/5",
+          "name": "Lowest",
+          "id": "5"
+        },
+        {
+          "self": "https://jira.example.com/rest/api/2/priority/10000",
+          "name": "Blocker",
+          "id": "10000"
+        },
+        {
+          "self": "https://jira.example.com/rest/api/2/priority/10001",
+          "name": "Minor",
+          "id": "10001"
+        }
+      ],
+      "defaultValue": {
+        "self": "https://jira.example.com/rest/api/2/priority/4",
+        "name": "Low",
+        "id": "4"
+      }
+    },
+    {
+      "required": false,
+      "schema": {
+        "type": "array",
+        "items": "string",
+        "system": "labels"
+      },
+      "name": "Labels",
+      "fieldId": "labels",
+      "autoCompleteUrl": "https://jira.example.com/rest/api/1.0/labels/suggest?query=",
+      "hasDefaultValue": false,
+      "operations": [
+        "add",
+        "set",
+        "remove"
+      ]
+    },
+    {
+      "required": false,
+      "schema": {
+        "type": "array",
+        "items": "attachment",
+        "system": "attachment"
+      },
+      "name": "Attachment",
+      "fieldId": "attachment",
+      "hasDefaultValue": false,
+      "operations": []
+    },
+    {
+      "required": false,
+      "schema": {
+        "type": "array",
+        "items": "issuelinks",
+        "system": "issuelinks"
+      },
+      "name": "Linked Issues",
+      "fieldId": "issuelinks",
+      "autoCompleteUrl": "https://jira.example.com/rest/api/2/issue/picker?currentProjectId=&showSubTaskParent=true&showSubTasks=true&currentIssueKey=null&query=",
+      "hasDefaultValue": false,
+      "operations": [
+        "add"
+      ]
+    },
+    {
+      "required": false,
+      "schema": {
+        "type": "any",
+        "custom": "com.pyxis.greenhopper.jira:gh-epic-link",
+        "customId": 10108
+      },
+      "name": "Epic Link",
+      "fieldId": "customfield_10108",
+      "hasDefaultValue": false,
+      "operations": [
+        "set"
+      ]
+    },
+    {
+      "required": false,
+      "schema": {
+        "type": "user",
+        "system": "assignee"
+      },
+      "name": "Assignee",
+      "fieldId": "assignee",
+      "autoCompleteUrl": "https://jira.example.com/rest/api/latest/user/assignable/search?issueKey=null&username=",
+      "hasDefaultValue": false,
+      "operations": [
+        "set"
+      ]
+    },
+    {
+      "required": true,
+      "schema": {
+        "type": "project",
+        "system": "project"
+      },
+      "name": "Project",
+      "fieldId": "project",
+      "hasDefaultValue": false,
+      "operations": [
+        "set"
+      ],
+      "allowedValues": [
+        {
+          "self": "https://jira.example.com/rest/api/2/project/11000",
+          "id": "11000",
+          "key": "PRJ19",
+          "name": "Project PRJ19",
+          "projectTypeKey": "software"
+        }
+      ]
+    }
+  ]
+}

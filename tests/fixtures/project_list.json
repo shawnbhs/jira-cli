@@ -1,0 +1,485 @@
+[
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10105",
+    "id": "10105",
+    "key": "PROJ",
+    "name": "Project PROJ",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "business",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10905",
+    "id": "10905",
+    "key": "PRJ2",
+    "name": "Project PRJ2",
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10607",
+    "id": "10607",
+    "key": "PRJ3",
+    "name": "Project PRJ3",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10123",
+    "id": "10123",
+    "key": "PRJ4",
+    "name": "Project PRJ4",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10801",
+    "id": "10801",
+    "key": "PRJ5",
+    "name": "Project PRJ5",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10100",
+      "id": "10100",
+      "name": "Sample text 2",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "business",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10300",
+    "id": "10300",
+    "key": "PRJ6",
+    "name": "Project PRJ6",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "business",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10125",
+    "id": "10125",
+    "key": "PRJ7",
+    "name": "Project PRJ7",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "business",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10904",
+    "id": "10904",
+    "key": "PRJ8",
+    "name": "Project PRJ8",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10002",
+      "id": "10002",
+      "name": "Example Client",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10216",
+    "id": "10216",
+    "key": "PRJ9",
+    "name": "Project PRJ9",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "business",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10109",
+    "id": "10109",
+    "key": "PRJ10",
+    "name": "Project PRJ10",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10118",
+    "id": "10118",
+    "key": "PRJ11",
+    "name": "Project PRJ11",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/11002",
+    "id": "11002",
+    "key": "PRJ12",
+    "name": "Project PRJ12",
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10606",
+    "id": "10606",
+    "key": "PRJ13",
+    "name": "Project PRJ13",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10117",
+    "id": "10117",
+    "key": "PRJ14",
+    "name": "Project PRJ14",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "business",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10126",
+    "id": "10126",
+    "key": "PRJ15",
+    "name": "Project PRJ15",
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10800",
+    "id": "10800",
+    "key": "PRJ16",
+    "name": "Project PRJ16",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10100",
+      "id": "10100",
+      "name": "Sample text 2",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "business",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10500",
+    "id": "10500",
+    "key": "PRJ17",
+    "name": "Project PRJ17",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/11005",
+    "id": "11005",
+    "key": "PRJ18",
+    "name": "Project PRJ18",
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/11000",
+    "id": "11000",
+    "key": "PRJ19",
+    "name": "Project PRJ19",
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10907",
+    "id": "10907",
+    "key": "PRJ20",
+    "name": "Project PRJ20",
+    "projectTypeKey": "business",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/11004",
+    "id": "11004",
+    "key": "PRJ21",
+    "name": "Project PRJ21",
+    "projectTypeKey": "service_desk",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10605",
+    "id": "10605",
+    "key": "PRJ22",
+    "name": "Project PRJ22",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "business",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/11001",
+    "id": "11001",
+    "key": "PRJ23",
+    "name": "Project PRJ23",
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10404",
+    "id": "10404",
+    "key": "PRJ24",
+    "name": "Project PRJ24",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10609",
+    "id": "10609",
+    "key": "PRJ25",
+    "name": "Project PRJ25",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10213",
+    "id": "10213",
+    "key": "PRJ26",
+    "name": "Project PRJ26",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "business",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10900",
+    "id": "10900",
+    "key": "PRJ27",
+    "name": "Project PRJ27",
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/11003",
+    "id": "11003",
+    "key": "PRJ28",
+    "name": "Project PRJ28",
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10903",
+    "id": "10903",
+    "key": "PRJ29",
+    "name": "Project PRJ29",
+    "projectTypeKey": "business",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10312",
+    "id": "10312",
+    "key": "PRJ30",
+    "name": "Project PRJ30",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "business",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10301",
+    "id": "10301",
+    "key": "PRJ31",
+    "name": "Project PRJ31",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "business",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10307",
+    "id": "10307",
+    "key": "PRJ32",
+    "name": "Project PRJ32",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10802",
+    "id": "10802",
+    "key": "PRJ33",
+    "name": "Project PRJ33",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10100",
+      "id": "10100",
+      "name": "Sample text 2",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "business",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10311",
+    "id": "10311",
+    "key": "PRJ34",
+    "name": "Project PRJ34",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "business",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10608",
+    "id": "10608",
+    "key": "PRJ35",
+    "name": "Project PRJ35",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10002",
+      "id": "10002",
+      "name": "Example Client",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10218",
+    "id": "10218",
+    "key": "PRJ36",
+    "name": "Project PRJ36",
+    "projectCategory": {
+      "self": "https://jira.example.com/rest/api/2/projectCategory/10001",
+      "id": "10001",
+      "name": "Example Corp",
+      "description": "Sample text 1"
+    },
+    "projectTypeKey": "software",
+    "archived": false
+  },
+  {
+    "expand": "description,lead,url,projectKeys",
+    "self": "https://jira.example.com/rest/api/2/project/10610",
+    "id": "10610",
+    "key": "PRJ37",
+    "name": "Project PRJ37",
+    "projectTypeKey": "software",
+    "archived": false
+  }
+]

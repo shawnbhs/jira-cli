@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+# Read-only token: a compromised step cannot write to the repository.
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: lint and test (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # Full history: a shallow checkout would make any history-wide check
+          # report clean on a repository whose problem is three commits back.
+          fetch-depth: 0
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install package and dev tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+
+      # Linter configuration lives in pyproject.toml, not in these flags, so a
+      # contributor running `ruff check .` locally gets the same verdict.
+      - name: ruff
+        run: ruff check .
+
+      - name: pytest
+        run: pytest -q
+
+      - name: bandit
+        run: bandit -r jira_cli -ll
+
+      - name: pip-audit
+        run: pip-audit
+
+  secrets:
+    name: secret scan (full history)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      # Pinned release binary verified against the published sha256 instead of
+      # a third-party action: no token is handed to external code, and a
+      # tampered download fails the job before it ever runs.
+      - name: Install gitleaks (pinned, checksum-verified)
+        env:
+          GITLEAKS_VERSION: "8.21.2"
+          GITLEAKS_SHA256: "5bc41815076e6ed6ef8fbecc9d9b75bcae31f39029ceb55da08086315316e3ba"
+        run: |
+          set -euo pipefail
+          archive="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          curl -fsSL --proto '=https' --tlsv1.2 -o "$RUNNER_TEMP/$archive" "$base/$archive"
+          echo "${GITLEAKS_SHA256}  $RUNNER_TEMP/$archive" | sha256sum --check --strict -
+          mkdir -p "$RUNNER_TEMP/gitleaks"
+          tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP/gitleaks" gitleaks
+          echo "$RUNNER_TEMP/gitleaks" >> "$GITHUB_PATH"
+
+      - name: gitleaks (full history, redacted)
+        run: gitleaks git . --redact --verbose --exit-code 1

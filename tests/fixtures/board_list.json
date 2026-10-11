@@ -1,0 +1,14 @@
+{
+  "maxResults": 50,
+  "startAt": 0,
+  "total": 1,
+  "isLast": true,
+  "values": [
+    {
+      "id": 37,
+      "self": "https://jira.example.com/rest/agile/1.0/board/37",
+      "name": "Sample name 1",
+      "type": "kanban"
+    }
+  ]
+}

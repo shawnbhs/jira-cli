@@ -1,0 +1,51 @@
+[
+  {
+    "self": "https://jira.example.com/rest/api/2/priority/1",
+    "statusColor": "#ff7452",
+    "description": "Sample text 33",
+    "name": "Highest",
+    "id": "1"
+  },
+  {
+    "self": "https://jira.example.com/rest/api/2/priority/2",
+    "statusColor": "#ff8f73",
+    "description": "Sample text 34",
+    "name": "High",
+    "id": "2"
+  },
+  {
+    "self": "https://jira.example.com/rest/api/2/priority/3",
+    "statusColor": "#ffab00",
+    "description": "Sample text 35",
+    "name": "Medium",
+    "id": "3"
+  },
+  {
+    "self": "https://jira.example.com/rest/api/2/priority/4",
+    "statusColor": "#0065ff",
+    "description": "Sample text 36",
+    "name": "Low",
+    "id": "4"
+  },
+  {
+    "self": "https://jira.example.com/rest/api/2/priority/5",
+    "statusColor": "#2684ff",
+    "description": "Sample text 37",
+    "name": "Lowest",
+    "id": "5"
+  },
+  {
+    "self": "https://jira.example.com/rest/api/2/priority/10000",
+    "statusColor": "#990000",
+    "description": "Sample text 38",
+    "name": "Blocker",
+    "id": "10000"
+  },
+  {
+    "self": "https://jira.example.com/rest/api/2/priority/10001",
+    "statusColor": "#999999",
+    "description": "Sample text 37",
+    "name": "Minor",
+    "id": "10001"
+  }
+]

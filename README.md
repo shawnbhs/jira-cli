@@ -1,0 +1,627 @@
+# jira-cli-manager
+
+A command line client **and** an MCP server for Jira Software Server / Data
+Center, written for the person who has to answer "what is the team actually
+doing this week" — not just for the person filing a ticket.
+
+The ordinary issue operations are here (create, edit, assign, transition,
+comment, link, log time), but the point of the tool is the layer above them:
+team dashboards, per-person activity streams, stale and overdue and
+half-filled-in issues, worklog roll-ups, sprint reports and velocity — each
+renderable as a table, Markdown, CSV or JSON. And a plan workflow that lets a
+task list be drafted, reviewed, estimated by a human, and only then created.
+
+The same functionality is exposed over [MCP](docs/MCP_TOOLS.md), so Claude
+Code or Hermes can read Jira freely while every write goes through an explicit
+two-step confirmation.
+
+- Jira **Server / Data Center** (REST v2 + Agile 1.0). Users are identified by
+  **username**, not accountId — this is not a Jira Cloud client.
+- Python 3.10+. Dependencies: `requests`, `mcp`, `PyYAML`.
+- MIT licensed. See [LICENSE](LICENSE).
+
+## Contents
+
+- [Install](#install)
+- [Configure](#configure)
+- [Quickstart](#quickstart)
+- [Command reference](#command-reference)
+- [Manager workflows](#manager-workflows)
+- [Plan files](#plan-files)
+- [MCP usage](#mcp-usage)
+- [Read-only mode](#read-only-mode)
+- [Security](#security)
+- [Development](#development)
+
+## Install
+
+### With the installer
+
+```bash
+git clone https://github.com/shawnbhs/jira-cli.git
+cd jira-cli
+./install.sh
+```
+
+`install.sh` does no `sudo` and touches nothing outside your home directory.
+It creates `.venv/` in the repo if it is missing, installs the package into it
+with `pip install -e .`, creates `~/.config/jira-cli` mode `0700`, copies
+`.env.example` to `~/.config/jira-cli/.env` mode `0600` **only if that file
+does not already exist**, and writes two launchers, `~/.local/bin/jira` and
+`~/.local/bin/jira-mcp`, that exec the venv entry points. It is idempotent —
+running it again upgrades the install and never overwrites your `.env`.
+
+If `~/.local/bin` is not on your `PATH`, the installer says so. Add it:
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && . ~/.bashrc
+```
+
+Coming from the 1.x single-file script, which kept its configuration in
+`~/.jira-cli/config.env`:
+
+```bash
+./install.sh --import-legacy
+```
+
+That reads the old file and writes its keys into the new `.env` without
+printing any value.
+
+To remove the launchers — and only the launchers, never your `.env`:
+
+```bash
+./uninstall.sh
+```
+
+### With pip directly
+
+```bash
+python3 -m venv .venv && . .venv/bin/activate
+pip install -e .
+```
+
+That gives you `jira` and `jira-mcp` on the venv's `PATH`. The package also
+runs as a module: `python -m jira_cli`.
+
+## Configure
+
+Configuration is environment variables, read from the process environment
+first and then from an environment file. Nothing is stored anywhere else and
+there is no credential flag.
+
+Environment file lookup order:
+
+1. `--env-file FILE`
+2. `$JIRA_CLI_ENV_FILE`
+3. `~/.config/jira-cli/.env` (the default; `$JIRA_CONFIG_DIR` moves it)
+4. `~/.jira-cli/config.env`, the 1.x location, if it exists
+
+Every variable is listed and commented in [.env.example](.env.example). The
+minimum is a base URL and a credential:
+
+```ini
+JIRA_BASE_URL=https://jira.example.com
+JIRA_AUTH_MODE=pat
+JIRA_PAT=your-personal-access-token
+JIRA_DEFAULT_PROJECT=PROJ
+```
+
+### Environment variables
+
+Every variable the code reads. "Env file" means the value may also come from
+the environment file; the process environment always wins. Booleans accept
+`1`/`true`/`yes`/`on`/`y` and `0`/`false`/`no`/`off`/`n` (case-insensitive);
+anything else is a configuration error (exit 2).
+
+| Variable | Env file | Default | Meaning |
+|---|---|---|---|
+| `JIRA_BASE_URL` | yes | — (required) | Jira base URL. Must be `https://…`; `http://` only with `JIRA_ALLOW_HTTP=1`. Must not contain `user:password@`. Trailing `/` is dropped. |
+| `JIRA_ALLOW_HTTP` | yes | off | Allow a plain `http://` base URL. Prints one stderr warning per process. |
+| `JIRA_AUTH_MODE` | yes | `pat` if `JIRA_PAT` is set, else `basic` | `pat` (bearer token) or `basic`. |
+| `JIRA_PAT` | yes | — | Personal access token (secret; redacted). |
+| `JIRA_USERNAME` | yes | — | Username for basic auth. Legacy alias `JIRA_EMAIL`. |
+| `JIRA_PASSWORD` | yes | — | Password for basic auth (secret; redacted). Legacy alias `JIRA_API_TOKEN`. |
+| `JIRA_DEFAULT_PROJECT` | yes | none | Project used when a command omits `--project`; upper-cased. Legacy alias `JIRA_PROJECT`. |
+| `JIRA_VERIFY_TLS` | yes | on | Boolean, or a path to a CA bundle. A false value prints one stderr warning per process. |
+| `JIRA_TIMEOUT` | yes | `20` | Request timeout in seconds (number > 0). |
+| `JIRA_READ_ONLY` | yes | off | Refuse every write before it is sent (see [Read-only mode](#read-only-mode)). |
+| `JIRA_HOURS_PER_DAY` | yes | `8` | Hours in a `d` when converting durations. |
+| `JIRA_DAYS_PER_WEEK` | yes | `5` | Days in a `w` when converting durations. |
+| `JIRA_FIELD_<NAME>` | yes | auto-detected | Custom-field id override, e.g. `JIRA_FIELD_STORY_POINTS=customfield_10003`. Known names: `SPRINT`, `EPIC_LINK`, `EPIC_NAME`, `STORY_POINTS`. |
+| `JIRA_CONFIG_DIR` | yes* | `~/.config/jira-cli` | Directory holding `.env`, `teams.yaml`, `filters.yaml` and (for MCP) `plans/`. *Only the process value moves where `.env` is looked for. |
+| `JIRA_CLI_ENV_FILE` | no | — | Environment file to read (after `--env-file`). |
+| `JIRA_CLI_PLAN_DIR` | no | `<config dir>/plans` | The only directory MCP plan tools may read plan files from and write `*.applied.json` state to. |
+| `JIRA_CLI_DEBUG` | no | off | Exactly `1` behaves like `--debug` (redacted traceback on failure). |
+
+`NO_COLOR` (any non-empty value) disables colour, like `--no-color`.
+Standard `requests` variables (`HTTPS_PROXY`, `NO_PROXY`,
+`REQUESTS_CA_BUNDLE`) are honoured; `~/.netrc` is never used.
+
+When the environment file has group or world permission bits, or (POSIX) is
+owned by another user, the tool prints a one-line warning on stderr.
+
+### Use a Personal Access Token (recommended)
+
+A PAT is better than your password for three reasons: it can be revoked on its
+own without changing your password, it can be given an expiry, and on most
+instances it is scoped to your own permissions rather than being a full
+credential for your account everywhere.
+
+**Creating one in Jira Server:**
+
+1. Log in to Jira in a browser.
+2. Click your **avatar** in the top right corner.
+3. Choose **Profile**.
+4. Open the **Personal Access Tokens** tab.
+5. Click **Create token**.
+6. Give it a name you will recognise later — `jira-cli on my laptop` — and set
+   an expiry. A year is reasonable; shorter is better.
+7. Click **Create**, then **copy the token immediately**. Jira shows it once
+   and never again.
+8. Put it in `~/.config/jira-cli/.env` as `JIRA_PAT=...` and make sure
+   `JIRA_AUTH_MODE=pat`.
+
+```bash
+chmod 600 ~/.config/jira-cli/.env
+jira doctor
+```
+
+If the **Personal Access Tokens** tab is not there, your administrator has
+disabled the feature. Fall back to basic auth:
+
+```ini
+JIRA_AUTH_MODE=basic
+JIRA_USERNAME=alice
+JIRA_PASSWORD=your-password
+```
+
+Jira Server uses your **username**, not your email address. If you are not
+sure what yours is, `jira doctor` in `pat` mode resolves and prints it.
+
+### Switching account later
+
+Everything about identity lives in the environment file, so handing the tool a
+different account — a service account, an admin account with wider visibility,
+or a colleague's credential on their own machine — is **one file edit and
+nothing else**:
+
+```bash
+$EDITOR ~/.config/jira-cli/.env   # change JIRA_PAT (and JIRA_USERNAME if set)
+jira me                           # confirm who you are now
+```
+
+No reinstall, no re-registration of the MCP server, no code change, no cached
+credential to clear. If you keep more than one account, keep one file per
+account and select it per invocation:
+
+```bash
+jira --env-file ~/.config/jira-cli/admin.env report team --team backend
+JIRA_CLI_ENV_FILE=~/.config/jira-cli/admin.env jira me   # same, via the environment
+```
+
+Keep every such file mode `0600`. The tool warns on stderr if an environment
+file is group- or world-readable.
+
+## Quickstart
+
+```bash
+# 1. Does it work, and who am I?
+jira doctor
+jira me
+
+# 2. What is on my plate?
+jira mine
+
+# 3. What is the team doing this week?
+jira team set backend --members alice,bob
+jira report team --team backend --projects PROJ --since 7d
+
+# 4. What is rotting?
+jira report stale --days 10 --projects PROJ
+jira report overdue --projects PROJ
+
+# 5. Where did the week go?
+jira report worklog --team backend --since 7d --format md
+
+# 6. How did the sprint go?
+jira boards list --project PROJ
+jira report sprint --board 12 --format md --out reports/sprint-27.md
+
+# 7. File something
+jira issue create --project PROJ --summary "Rotate the signing key" \
+  --type Task --assignee alice --priority High --estimate 3h --due 2026-10-20
+
+# 8. Create a whole batch, reviewed first
+jira plan new sprint27.yaml
+jira plan validate sprint27.yaml
+jira plan preview sprint27.yaml
+jira plan apply sprint27.yaml
+```
+
+Run `jira` with no arguments for an interactive menu that walks the same
+ground without memorising flags.
+
+## Command reference
+
+The full list, with an example for every command, is in
+**[docs/COMMANDS.md](docs/COMMANDS.md)**. The shape (global options go before
+the command):
+
+```
+jira [--env-file F] [--json] [--no-color] [--yes] [--debug] <command>
+
+  me | doctor | config show | mcp
+  projects list | projects show KEY | projects create KEY NAME --lead U [--template kanban|scrum|basic]
+           [--description T] | projects component PROJECT NAME [--lead U]
+         | projects version PROJECT NAME [--release-date D] | projects types PROJECT
+         | projects priorities | projects statuses PROJECT
+  boards list [--project KEY] [--type kanban|scrum] | boards show BOARD_ID
+         | boards ensure PROJECT [--type kanban|scrum] [--name N] | boards issues BOARD_ID [--jql Q] [--limit N]
+  sprints BOARD_ID [--state S]
+  sprint active BOARD_ID | sprint create BOARD_ID NAME [--start D --end D --goal T]
+         | sprint add SPRINT_ID KEY... | sprint backlog KEY...
+  issue show KEY [--changelog]
+  issue create --project KEY --summary T [--type --assignee --priority --estimate --due --label ...
+               --epic --parent --desc --components --fix-versions --story-points --sprint]
+  issue edit KEY [--summary --desc --priority --due --estimate --remaining --label ...
+                 --components --fix-versions --story-points]
+  issue assign KEY USER|none | issue transitions KEY | issue move KEY STATUS [--comment T]
+  issue comment KEY TEXT | issue comments KEY | issue link FROM TO [--type T] | issue linktypes
+  issue delete KEY | issue worklog KEY TIME [--comment T --started D] | issue worklogs KEY
+  issue estimate KEY [--original D] [--remaining D]
+  search JQL [--limit N] | mine [--all] [--limit N]
+  users search QUERY [--limit N] | users assignable PROJECT [QUERY]
+  team list | team show NAME | team set NAME --members a,b [--projects X,Y] [--boards 1,2]
+       | team remove NAME
+  report team|person|stale|overdue|incomplete|unassigned|workload|worklog|sprint|velocity
+         [--team NAME] [--users a,b] [--user U] [--projects X,Y] [--since 7d] [--until D]
+         [--days N] [--board ID] [--sprint ID] [--last N] [--format table|md|csv|json] [--out FILE]
+  export FILE [--format table|md|csv|json] [--out FILE]
+  filter list | filter save NAME JQL [--description T] | filter run NAME [--limit N]
+         | filter delete NAME | filter server
+  plan new FILE | plan validate FILE | plan preview FILE [--format F] [--out FILE]
+       | plan apply FILE [--dry-run] [--state STATE_FILE]
+```
+
+Conventions that apply everywhere:
+
+- **Every write command previews what it will do and asks `Proceed? [y/N]`**
+  unless `--yes` is passed. Answering anything but `y`/`yes` (or EOF, or
+  Ctrl-C) sends nothing, prints `Aborted, nothing changed.` on stderr and
+  exits `4`.
+- `--json` prints the raw service result instead of a table. stdout then
+  carries only JSON; previews, the prompt and notices go to stderr.
+- Report windows (`--since`, `--until`) accept `YYYY-MM-DD`, `today`,
+  `yesterday`, or a relative age `7d`, `2w`, `1m` counted back from today.
+- Durations accept `1w 2d 3h 30m`, `90m`, `1.5h`, converted with
+  `JIRA_HOURS_PER_DAY` / `JIRA_DAYS_PER_WEEK`.
+- Issue and project keys are validated before any request; lower-case keys
+  are accepted and upper-cased (`proj-12` -> `PROJ-12`).
+- Failures print one redacted, terminal-safe `error:` line on stderr; add
+  `--debug` (or `JIRA_CLI_DEBUG=1`) for a redacted traceback.
+- There is no `--version` flag; use `pip show jira-cli-manager`.
+
+### Exit codes
+
+From `jira_cli/cli/main.py`:
+
+| Code | Name | When |
+|---|---|---|
+| `0` | `EXIT_OK` | Success |
+| `1` | `EXIT_ERROR` | Input error, Jira/HTTP error, read-only refusal, partial result, incomplete command, or an unexpected exception; `jira doctor` with a failed check |
+| `2` | `EXIT_CONFIG` | Configuration error (`ConfigError`: missing/invalid setting, `http://` without `JIRA_ALLOW_HTTP`) |
+| `3` | `EXIT_AUTH` | Authentication failed (`AuthError`); prints the hint `run: jira doctor` |
+| `4` | `EXIT_CANCELLED` | A write confirmation was declined |
+| `5` | `EXIT_IO` | Local file or I/O error (`OSError`) |
+| `130` | `EXIT_INTERRUPT` | Interrupted with Ctrl-C |
+
+argparse usage errors exit `2` (argparse's own convention).
+
+## Manager workflows
+
+Each of these answers one recurring question. All of them accept
+`--format md|csv|json` and `--out FILE`, so the answer can go straight into a
+standup note, a spreadsheet or another tool.
+
+### Team dashboard — "where does everyone stand?"
+
+One row per person: open to-do, in progress, done inside the window, overdue,
+stale (not done, untouched more than five days), total open estimate, time
+logged in the window.
+
+```bash
+jira team set backend --members alice,bob --projects PROJ,OPS
+jira report team --team backend --since 7d
+jira report team --team backend --since 14d --format md --out reports/standup.md
+```
+
+Teams are named lists in `~/.config/jira-cli/teams.yaml` and are accepted
+anywhere a user list is (`--team backend`, `team:backend`, `@backend`). They
+are managed from the CLI and from MCP, so an agent can build them too.
+
+### Person activity — "what did this person actually do?"
+
+A chronological event stream for one person, assembled from created issues,
+status changes (by changelog author), assignee changes, comments and
+worklogs — `when, key, summary, action, detail`. This is the report to read
+before a one-on-one, and the one to prefer over counting tickets.
+
+```bash
+jira report person --user alice --since 14d
+jira report person --user alice --since 2026-10-01 --until 2026-10-07 --format md
+```
+
+### Problems — "what needs my attention?"
+
+Four complementary views:
+
+```bash
+jira report stale      --days 10 --projects PROJ     # not done, untouched
+jira report overdue    --projects PROJ               # past due, not done
+jira report incomplete --projects PROJ               # missing description, priority,
+                                                     # estimate, assignee or due date
+jira report unassigned --projects PROJ,OPS           # open, nobody owns it
+```
+
+`incomplete` is the hygiene report: it finds the issues that will cause an
+argument later because nobody wrote down what they mean or who owns them.
+
+### Worklog — "where did the time go?"
+
+Hours per person per issue, with per-person and overall totals.
+
+```bash
+jira report worklog --team backend --since 7d
+jira report worklog --users alice,bob --since 2026-10-01 --until 2026-10-07 \
+  --format csv --out reports/week40.csv
+```
+
+Logging time is a separate, explicit act:
+
+```bash
+jira issue worklog PROJ-12 "2h 30m" --comment "Pairing on the migration" --started yesterday
+jira issue estimate PROJ-12 --original 2d --remaining 6h
+```
+
+### Sprint report and velocity — "how did the sprint go?"
+
+Committed, completed, not completed, and — the number that usually explains
+the others — **added after the sprint started**.
+
+```bash
+jira boards list --project PROJ
+jira report sprint --board 12                           # the active sprint
+jira report sprint --board 12 --sprint 341 --format md  # a specific one
+jira report velocity --board 12 --last 5                # last 5 closed sprints
+```
+
+### Export — "put it where people will read it"
+
+Every report renders four ways and can be written straight to a file; the
+format follows the suffix when `--format` is omitted. A report saved as JSON
+can be re-rendered later without querying Jira again.
+
+```bash
+jira report team --team backend --format md   --out reports/standup.md
+jira report worklog --team backend --format csv --out reports/week40.csv
+jira report sprint --board 12 --format json --out reports/sprint.json
+jira export reports/sprint.json --format md
+```
+
+Local saved filters give the same treatment to a JQL you keep retyping:
+
+```bash
+jira filter save hotspots 'project = PROJ AND priority in (High, Highest) AND status != Done'
+jira filter run hotspots
+jira filter server            # your favourite filters from the Jira server
+```
+
+## Plan files
+
+The workflow for creating a batch of issues without creating the wrong batch
+of issues: draft a YAML list, validate it against the live instance, preview
+it with totals, let a human own the estimates, then apply.
+
+```bash
+jira plan new sprint27.yaml
+$EDITOR sprint27.yaml
+jira plan validate sprint27.yaml
+jira plan preview sprint27.yaml --format md
+jira plan apply sprint27.yaml --dry-run
+jira plan apply sprint27.yaml
+```
+
+```yaml
+defaults: { project: PROJ, board: 12, sprint: active, issue_type: Task, priority: Medium }
+issues:
+  - ref: t1
+    summary: "Extract the import pipeline into a service"
+    assignee: alice
+    estimate: 2d
+    estimate_by: human
+    type: Story
+  - ref: t2
+    summary: "Add the queue consumer"
+    parent: t1
+    assignee: bob
+    estimate: ask
+  - ref: t3
+    summary: "Write the runbook"
+    estimate: 3h
+    estimate_by: agent
+  - ref: t4
+    summary: "Spike: evaluate the queue library"
+    estimate: none
+```
+
+Three things matter most:
+
+- **`estimate: ask` blocks the plan.** `ask` means *a human still has to
+  decide*: `validate` reports it as an **error**, so a plan cannot be applied
+  while any `ask` remains. Replace it with a duration, or with `none` for
+  *deliberately unestimated* (no error, created with no estimate).
+- **`estimate_by: agent` flags a guess.** When you let the agent estimate, it
+  writes the number **and** `estimate_by: agent`; `validate` warns on every
+  such row (a warning, not an error) until you change it to `human`.
+- **`apply` is resumable.** Parents are created before children, and each
+  success is recorded in `sprint27.applied.json` as it happens. A re-run skips
+  what already exists and retries only what failed, so a partial failure is
+  safe: fix the cause and run the same command again.
+
+Full format, the CSV variant (MCP only), the MCP plan directory
+(`$JIRA_CLI_PLAN_DIR`), and exactly what `validate` checks:
+**[docs/PLAN_FORMAT.md](docs/PLAN_FORMAT.md)**.
+
+## MCP usage
+
+The MCP server exposes **48 tools** — 31 read tools that run immediately
+and 17 write tools behind a two-step confirmation. Full tool list:
+**[docs/MCP_TOOLS.md](docs/MCP_TOOLS.md)**.
+
+```bash
+jira-mcp                       # stdio, foreground
+jira mcp                       # the same server
+python -m jira_cli.mcp_server  # the same server
+```
+
+### The confirm_token flow
+
+A write tool takes `confirm_token: str | None = None`.
+
+1. **Call it without a token.** Nothing is changed in Jira. You get back
+   `{"status": "needs_confirmation", "preview": ..., "confirm_token": "...", "expires_in": 900, "message": "..."}`
+   where `preview` describes the exact change (edits as old -> new).
+2. **Call it again with that token and identical arguments.** It executes and
+   returns `{"status": "done", "result": {...}}`.
+
+Anything else is `{"status": "rejected", "reason": "..."}`. The token is
+single-use, expires after 15 minutes, lives in memory only, and is bound to
+the tool name and a SHA-256 hash of the canonical JSON of the arguments — so
+it cannot be carried over to a different operation, and changing one
+character of a summary invalidates (and burns) it. Comparison is
+constant-time. Failures of any tool come back as
+`{"status": "error", "error": "...", "type": "..."}`; no tool raises.
+
+This is what makes an agent safe to point at a real Jira instance: the model
+proposes, you see the preview, and the second call is the consent.
+
+### Claude Code
+
+```bash
+claude mcp add jira -- jira-mcp
+claude mcp list
+```
+
+With an explicit environment file and writes disabled while you evaluate it:
+
+```bash
+claude mcp add jira \
+  --env JIRA_CLI_ENV_FILE=/home/alice/.config/jira-cli/.env \
+  --env JIRA_READ_ONLY=1 \
+  -- jira-mcp
+```
+
+Then ask it something: *"use the jira tools to show me the backend team
+dashboard for the last week"*. When a write is proposed, Claude will show you
+the preview from step 1 before it calls step 2.
+
+### Hermes
+
+```yaml
+mcp_servers:
+  jira:
+    command: jira-mcp
+    args: []
+    env:
+      JIRA_CLI_ENV_FILE: /home/alice/.config/jira-cli/.env
+      JIRA_READ_ONLY: "1"      # remove once you trust the write flow
+```
+
+Restart Hermes, confirm the 48 `jira_*` tools are listed, and start with
+`jira_me`.
+
+### Any other client
+
+Command `jira-mcp`, no arguments, stdio transport, server name `jira`. It
+needs `JIRA_BASE_URL` and a credential in its environment, inherited from the
+parent process or read from the environment file.
+
+## Read-only mode
+
+```ini
+JIRA_READ_ONLY=1
+```
+
+With this set, every mutating path is refused before a request is sent:
+
+- In the **CLI**, a command that writes to Jira fails with `ReadOnlyError`
+  (exit `1`).
+- In the **MCP server**, a write tool returns `rejected` on the *first* call —
+  no preview, no token issued, so there is no path to a mutation at all.
+
+Reads are unaffected. JQL search is sent as a `POST`, so it is the one
+exception: a `POST` is let through only when its path is exactly
+`/rest/api/2/search` under the base URL, with no query string.
+
+This is the right setting for a first pass with an
+agent, for a shared dashboard account, and for any credential you do not fully
+control. It is enforced in the client, so it also covers a write attempted
+through a code path that forgot to ask.
+
+## Security
+
+Short version:
+
+- Secrets come from the environment only, are `repr`-suppressed and are
+  never printed; `config show` and `doctor` show `set (N chars)`.
+- Every error line, Jira error body and `--debug` traceback is redacted and
+  made terminal-safe before it is printed.
+- `JIRA_BASE_URL` must be `https://` (plain `http://` only with
+  `JIRA_ALLOW_HTTP=1`, with a warning) and must not embed `user:password@`.
+  TLS verification is on; turning it off
+  warns. At most 5 redirects; `~/.netrc` is never used; an absolute URL
+  pointing at another origin is refused.
+- Issue keys, project keys and numeric ids are validated before they reach a
+  URL path, and the client rejects `..`, `%2f` and similar path tricks.
+- Text from Jira is stripped of terminal control and bidi characters before
+  it is printed.
+- Writes are never retried. Every CLI write asks first; every MCP write needs
+  a single-use `confirm_token`. `JIRA_READ_ONLY=1` refuses all writes.
+- MCP plan tools read plan files only from `$JIRA_CLI_PLAN_DIR` (default
+  `<config dir>/plans`): `.yaml`/`.yml`/`.csv`, at most 1 MB.
+- Files the tool writes (reports, `teams.yaml`, `filters.yaml`,
+  `*.applied.json`) are `0600`; new directories `0700`. CSV cells that start
+  with `=`, `+`, `-` or `@` are escaped against formula injection.
+- A group/world-readable or foreign-owned environment file triggers a
+  warning.
+
+`.gitignore` excludes `.env`, `.env*`, `*.env`, `teams.yaml`, `filters.yaml`,
+`*.applied.json`, `plans/` and `reports/`, and keeps `.env.example`, which
+contains placeholders only. No real hostname, username or token appears
+anywhere in this repository.
+
+CI runs `ruff`, `pytest`, `bandit -ll`, `pip-audit`, and `gitleaks` over the
+**full** history on every push.
+
+The complete security model, and how to report a vulnerability:
+**[SECURITY.md](SECURITY.md)**.
+
+## Development
+
+```bash
+python3 -m venv .venv && . .venv/bin/activate
+pip install -e '.[dev]'
+
+ruff check .
+pytest -q
+bandit -r jira_cli -ll
+pip-audit
+```
+
+Tests run **offline** — no test touches a real server; each test file builds
+its own fakes. Linter configuration lives in
+[pyproject.toml](pyproject.toml), not in CI flags, so a local `ruff check`
+gives the same verdict the pipeline does.
+
+Changes are recorded in [CHANGELOG.md](CHANGELOG.md). 2.0.0 is a full rewrite;
+1.x was a single-file script.

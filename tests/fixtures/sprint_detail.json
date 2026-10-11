@@ -1,0 +1,13 @@
+{
+  "id": 6,
+  "self": "https://jira.example.com/rest/agile/1.0/sprint/6",
+  "state": "active",
+  "name": "Sample name 1",
+  "startDate": "2025-09-07T18:16:00.000+00:00",
+  "endDate": "2025-09-14T18:16:00.000+00:00",
+  "activatedDate": "2025-09-07T11:17:05.551+00:00",
+  "originBoardId": 9,
+  "goal": "Sample text 1",
+  "synced": false,
+  "autoStartStop": false
+}

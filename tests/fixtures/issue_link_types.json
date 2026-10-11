@@ -1,0 +1,116 @@
+{
+  "issueLinkTypes": [
+    {
+      "id": "10000",
+      "name": "Blocks",
+      "inward": "is blocked by",
+      "outward": "blocks",
+      "self": "https://jira.example.com/rest/api/2/issueLinkType/10000"
+    },
+    {
+      "id": "10001",
+      "name": "Cloners",
+      "inward": "is cloned by",
+      "outward": "clones",
+      "self": "https://jira.example.com/rest/api/2/issueLinkType/10001"
+    },
+    {
+      "id": "10002",
+      "name": "Duplicate",
+      "inward": "is duplicated by",
+      "outward": "duplicates",
+      "self": "https://jira.example.com/rest/api/2/issueLinkType/10002"
+    },
+    {
+      "id": "10302",
+      "name": "finish-finish [GANTT]",
+      "inward": "finishs with",
+      "outward": "finishs with",
+      "self": "https://jira.example.com/rest/api/2/issueLinkType/10302"
+    },
+    {
+      "id": "10301",
+      "name": "finish-start [GANTT]",
+      "inward": "tbd. after",
+      "outward": "tbd. before",
+      "self": "https://jira.example.com/rest/api/2/issueLinkType/10301"
+    },
+    {
+      "id": "10402",
+      "name": "Gantt End to End",
+      "inward": "has to be finished together with",
+      "outward": "has to be finished together with",
+      "self": "https://jira.example.com/rest/api/2/issueLinkType/10402"
+    },
+    {
+      "id": "10404",
+      "name": "Gantt End to Start",
+      "inward": "has to be done after",
+      "outward": "has to be done before",
+      "self": "https://jira.example.com/rest/api/2/issueLinkType/10404"
+    },
+    {
+      "id": "10405",
+      "name": "Gantt Start to End",
+      "inward": "earliest end is start of",
+      "outward": "start is earliest end of",
+      "self": "https://jira.example.com/rest/api/2/issueLinkType/10405"
+    },
+    {
+      "id": "10403",
+      "name": "Gantt Start to Start",
+      "inward": "has to be started together with",
+      "outward": "has to be started together with",
+      "self": "https://jira.example.com/rest/api/2/issueLinkType/10403"
+    },
+    {
+      "id": "10300",
+      "name": "multi-level hierarchy [GANTT]",
+      "inward": "is subtask of",
+      "outward": "is parent task of",
+      "self": "https://jira.example.com/rest/api/2/issueLinkType/10300"
+    },
+    {
+      "id": "10400",
+      "name": "Parent-Child",
+      "inward": "is child of",
+      "outward": "is parent of",
+      "self": "https://jira.example.com/rest/api/2/issueLinkType/10400"
+    },
+    {
+      "id": "10600",
+      "name": "Problem/Incident",
+      "inward": "is caused by",
+      "outward": "causes",
+      "self": "https://jira.example.com/rest/api/2/issueLinkType/10600"
+    },
+    {
+      "id": "10003",
+      "name": "Relates",
+      "inward": "relates to",
+      "outward": "relates to",
+      "self": "https://jira.example.com/rest/api/2/issueLinkType/10003"
+    },
+    {
+      "id": "10401",
+      "name": "Risk mitigation",
+      "inward": "is mitigated by",
+      "outward": "mitigates risk",
+      "self": "https://jira.example.com/rest/api/2/issueLinkType/10401"
+    },
+    {
+      "id": "10303",
+      "name": "start-finish [GANTT]",
+      "inward": "start is earliest end of",
+      "outward": "earliest end is start of",
+      "self": "https://jira.example.com/rest/api/2/issueLinkType/10303"
+    },
+    {
+      "id": "10304",
+      "name": "start-start [GANTT]",
+      "inward": "starts with",
+      "outward": "starts with",
+      "self": "https://jira.example.com/rest/api/2/issueLinkType/10304"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "contents": {
+    "completedIssues": [],
+    "issuesNotCompletedInCurrentSprint": [],
+    "puntedIssues": [],
+    "issuesCompletedInAnotherSprint": [],
+    "entityData": {
+      "statuses": {},
+      "priorities": {},
+      "types": {},
+      "epics": {}
+    },
+    "completedIssuesInitialEstimateSum": {
+      "text": "Sample text 20"
+    },
+    "completedIssuesEstimateSum": {
+      "text": "Sample text 20"
+    },
+    "issuesNotCompletedInitialEstimateSum": {
+      "text": "Sample text 20"
+    },
+    "issuesNotCompletedEstimateSum": {
+      "text": "Sample text 20"
+    },
+    "allIssuesEstimateSum": {
+      "text": "Sample text 20"
+    },
+    "puntedIssuesInitialEstimateSum": {
+      "text": "Sample text 20"
+    },
+    "puntedIssuesEstimateSum": {
+      "text": "Sample text 20"
+    },
+    "issuesCompletedInAnotherSprintInitialEstimateSum": {
+      "text": "Sample text 20"
+    },
+    "issuesCompletedInAnotherSprintEstimateSum": {
+      "text": "Sample text 20"
+    },
+    "issueKeysAddedDuringSprint": {}
+  },
+  "sprint": {
+    "id": 6,
+    "sequence": 6,
+    "rapidViewId": 9,
+    "name": "Sample name 1",
+    "state": "ACTIVE",
+    "goal": "Sample text 1",
+    "autoStartStop": false,
+    "synced": false,
+    "startDate": "07/Sep/25 6:16 PM",
+    "endDate": "14/Sep/25 6:16 PM",
+    "activatedDate": "07/Sep/25 11:17 AM",
+    "completeDate": "",
+    "canUpdateSprint": true,
+    "canStartStopSprint": true,
+    "canUpdateDates": true,
+    "remoteLinks": [],
+    "daysRemaining": 0
+  },
+  "lastUserToClose": "<span class=\"jira-user-hover-wrapper\"><a class=\"user-hover user-hover-replaced\" rel=\"dave\" id=\"_dave\" href=\"/secure/ViewProfile.jspa?name=dave\">Dave (Inactive)</a><button class=\"aui-button aui-button-text user-hover-trigger\" rel=\"dave\" aria-label=\"Show user information\" aria-haspopup=\"dialog\"><span class=\"aui-icon aui-icon-small aui-iconfont-info-filled user-hover-trigger-icon\"></span></button></span>",
+  "userWhoStarted": "<span class=\"jira-user-hover-wrapper\"><a class=\"user-hover user-hover-replaced\" rel=\"dave\" id=\"_dave\" href=\"/secure/ViewProfile.jspa?name=dave\">Dave (Inactive)</a><button class=\"aui-button aui-button-text user-hover-trigger\" rel=\"dave\" aria-label=\"Show user information\" aria-haspopup=\"dialog\"><span class=\"aui-icon aui-icon-small aui-iconfont-info-filled user-hover-trigger-icon\"></span></button></span>",
+  "supportsPages": false
+}

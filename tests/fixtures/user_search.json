@@ -1,0 +1,57 @@
+[
+  {
+    "self": "https://jira.example.com/rest/api/2/user?username=heidi",
+    "key": "heidi",
+    "name": "heidi",
+    "emailAddress": "heidi@example.com",
+    "displayName": "Heidi",
+    "active": true,
+    "deleted": false,
+    "timeZone": "UTC",
+    "locale": "en"
+  },
+  {
+    "self": "https://jira.example.com/rest/api/2/user?username=ivan",
+    "key": "ivan",
+    "name": "ivan",
+    "emailAddress": "ivan@example.com",
+    "displayName": "Ivan",
+    "active": true,
+    "deleted": false,
+    "timeZone": "UTC",
+    "locale": "en"
+  },
+  {
+    "self": "https://jira.example.com/rest/api/2/user?username=judy",
+    "key": "judy",
+    "name": "judy",
+    "emailAddress": "judy@example.com",
+    "displayName": "Judy",
+    "active": true,
+    "deleted": false,
+    "timeZone": "UTC",
+    "locale": "en"
+  },
+  {
+    "self": "https://jira.example.com/rest/api/2/user?username=grace",
+    "key": "grace",
+    "name": "grace",
+    "emailAddress": "grace@example.com",
+    "displayName": "Grace",
+    "active": true,
+    "deleted": false,
+    "timeZone": "UTC",
+    "locale": "en"
+  },
+  {
+    "self": "https://jira.example.com/rest/api/2/user?username=ken",
+    "key": "ken",
+    "name": "ken",
+    "emailAddress": "ken@example.com",
+    "displayName": "Ken",
+    "active": true,
+    "deleted": false,
+    "timeZone": "UTC",
+    "locale": "en"
+  }
+]

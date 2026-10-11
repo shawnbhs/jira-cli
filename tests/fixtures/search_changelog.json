@@ -1,0 +1,1509 @@
+{
+  "expand": "schema,names",
+  "startAt": 0,
+  "maxResults": 5,
+  "total": 220,
+  "issues": [
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "17697",
+      "self": "https://jira.example.com/rest/api/2/issue/17697",
+      "key": "PRJ21-567",
+      "fields": {
+        "issuetype": {
+          "self": "https://jira.example.com/rest/api/2/issuetype/10002",
+          "id": "10002",
+          "description": "Sample text 13",
+          "name": "Task",
+          "subtask": false
+        },
+        "timespent": 2400,
+        "project": {
+          "self": "https://jira.example.com/rest/api/2/project/11004",
+          "id": "11004",
+          "key": "PRJ21",
+          "name": "Project PRJ21",
+          "projectTypeKey": "service_desk"
+        },
+        "fixVersions": [],
+        "customfield_10110": null,
+        "customfield_10111": null,
+        "aggregatetimespent": 2400,
+        "resolution": {
+          "self": "https://jira.example.com/rest/api/2/resolution/10000",
+          "id": "10000",
+          "description": "Sample text 18",
+          "name": "Done"
+        },
+        "customfield_10302": null,
+        "customfield_10700": null,
+        "customfield_10502": null,
+        "customfield_10305": null,
+        "customfield_10503": null,
+        "customfield_10306": null,
+        "customfield_10108": null,
+        "customfield_10504": null,
+        "customfield_10109": null,
+        "customfield_10505": null,
+        "customfield_10506": null,
+        "resolutiondate": "2026-10-11T12:09:27.000+0000",
+        "customfield_10705": null,
+        "customfield_10507": null,
+        "customfield_10706": null,
+        "customfield_10508": null,
+        "workratio": -1,
+        "lastViewed": null,
+        "watches": {
+          "self": "https://jira.example.com/rest/api/2/issue/PRJ21-567/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "created": "2026-10-11T10:52:10.000+0000",
+        "priority": {
+          "self": "https://jira.example.com/rest/api/2/priority/4",
+          "name": "Low",
+          "id": "4"
+        },
+        "customfield_10100": null,
+        "customfield_10101": null,
+        "customfield_10102": null,
+        "customfield_10300": null,
+        "labels": [],
+        "customfield_10103": null,
+        "customfield_10301": null,
+        "customfield_10731": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "customfield_10732": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "customfield_10733": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "customfield_10734": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "timeestimate": 0,
+        "aggregatetimeoriginalestimate": null,
+        "versions": [],
+        "issuelinks": [],
+        "assignee": {
+          "self": "https://jira.example.com/rest/api/2/user?username=bob",
+          "name": "bob",
+          "key": "bob",
+          "emailAddress": "bob@example.com",
+          "displayName": "Bob",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "updated": "2026-10-11T12:37:31.000+0000",
+        "status": {
+          "self": "https://jira.example.com/rest/api/2/status/10001",
+          "description": "Sample text 1",
+          "name": "Done",
+          "id": "10001",
+          "statusCategory": {
+            "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "success",
+            "name": "Done"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "Sample text 19",
+        "customfield_10730": null,
+        "customfield_10720": null,
+        "customfield_10600": [],
+        "customfield_10721": null,
+        "customfield_10601": null,
+        "customfield_10722": null,
+        "customfield_10602": [],
+        "customfield_10723": null,
+        "customfield_10724": null,
+        "customfield_10603": null,
+        "aggregatetimeestimate": 0,
+        "customfield_10725": null,
+        "customfield_10604": null,
+        "customfield_10605": [],
+        "customfield_10726": null,
+        "customfield_10606": "0|i014mn:",
+        "customfield_10727": null,
+        "customfield_10728": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10729": null,
+        "summary": "Sample text 20",
+        "creator": {
+          "self": "https://jira.example.com/rest/api/2/user?username=carol",
+          "name": "carol",
+          "key": "carol",
+          "emailAddress": "carol@example.com",
+          "displayName": "Carol",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://jira.example.com/rest/api/2/user?username=carol",
+          "name": "carol",
+          "key": "carol",
+          "emailAddress": "carol@example.com",
+          "displayName": "Carol",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "customfield_10000": "{}",
+        "aggregateprogress": {
+          "progress": 2400,
+          "total": 2400,
+          "percent": 100
+        },
+        "customfield_10200": "",
+        "customfield_10400": null,
+        "environment": null,
+        "customfield_10712": null,
+        "duedate": null,
+        "customfield_10718": null,
+        "progress": {
+          "progress": 2400,
+          "total": 2400,
+          "percent": 100
+        },
+        "customfield_10719": null,
+        "votes": {
+          "self": "https://jira.example.com/rest/api/2/issue/PRJ21-567/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      },
+      "renderedFields": null,
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 4,
+        "total": 4,
+        "histories": [
+          {
+            "id": "46200",
+            "author": {
+              "self": "https://jira.example.com/rest/api/2/user?username=bob",
+              "name": "bob",
+              "key": "bob",
+              "emailAddress": "bob@example.com",
+              "displayName": "Bob",
+              "active": true,
+              "timeZone": "UTC"
+            },
+            "created": "2026-10-11T12:09:21.109+0000",
+            "items": [
+              {
+                "field": "timeestimate",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "0",
+                "toString": "0"
+              },
+              {
+                "field": "timespent",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "1800",
+                "toString": "1800"
+              },
+              {
+                "field": "WorklogId",
+                "fieldtype": "jira",
+                "from": "11822",
+                "fromString": "11822",
+                "to": null,
+                "toString": null
+              }
+            ]
+          },
+          {
+            "id": "46201",
+            "author": {
+              "self": "https://jira.example.com/rest/api/2/user?username=bob",
+              "name": "bob",
+              "key": "bob",
+              "emailAddress": "bob@example.com",
+              "displayName": "Bob",
+              "active": true,
+              "timeZone": "UTC"
+            },
+            "created": "2026-10-11T12:09:27.283+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "10000",
+                "toString": "Done"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "from": "10109",
+                "fromString": "Open",
+                "to": "10001",
+                "toString": "Done"
+              }
+            ]
+          },
+          {
+            "id": "46206",
+            "author": {
+              "self": "https://jira.example.com/rest/api/2/user?username=bob",
+              "name": "bob",
+              "key": "bob",
+              "emailAddress": "bob@example.com",
+              "displayName": "Bob",
+              "active": true,
+              "timeZone": "UTC"
+            },
+            "created": "2026-10-11T12:35:58.929+0000",
+            "items": [
+              {
+                "field": "assignee",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "JIRAUSER10002",
+                "toString": "Bob"
+              }
+            ]
+          },
+          {
+            "id": "46207",
+            "author": {
+              "self": "https://jira.example.com/rest/api/2/user?username=bob",
+              "name": "bob",
+              "key": "bob",
+              "emailAddress": "bob@example.com",
+              "displayName": "Bob",
+              "active": true,
+              "timeZone": "UTC"
+            },
+            "created": "2026-10-11T12:37:31.074+0000",
+            "items": [
+              {
+                "field": "timespent",
+                "fieldtype": "jira",
+                "from": "1800",
+                "fromString": "1800",
+                "to": "2400",
+                "toString": "2400"
+              },
+              {
+                "field": "WorklogId",
+                "fieldtype": "jira",
+                "from": "11824",
+                "fromString": "11824",
+                "to": null,
+                "toString": null
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "17699",
+      "self": "https://jira.example.com/rest/api/2/issue/17699",
+      "key": "PRJ21-568",
+      "fields": {
+        "issuetype": {
+          "self": "https://jira.example.com/rest/api/2/issuetype/10002",
+          "id": "10002",
+          "description": "Sample text 13",
+          "name": "Task",
+          "subtask": false
+        },
+        "timespent": 900,
+        "project": {
+          "self": "https://jira.example.com/rest/api/2/project/11004",
+          "id": "11004",
+          "key": "PRJ21",
+          "name": "Project PRJ21",
+          "projectTypeKey": "service_desk"
+        },
+        "fixVersions": [],
+        "customfield_10110": null,
+        "customfield_10111": null,
+        "aggregatetimespent": 900,
+        "resolution": {
+          "self": "https://jira.example.com/rest/api/2/resolution/10000",
+          "id": "10000",
+          "description": "Sample text 18",
+          "name": "Done"
+        },
+        "customfield_10302": null,
+        "customfield_10700": null,
+        "customfield_10502": null,
+        "customfield_10305": null,
+        "customfield_10503": null,
+        "customfield_10306": null,
+        "customfield_10108": null,
+        "customfield_10504": null,
+        "customfield_10109": null,
+        "customfield_10505": null,
+        "customfield_10506": null,
+        "resolutiondate": "2026-10-11T12:09:55.000+0000",
+        "customfield_10705": null,
+        "customfield_10507": null,
+        "customfield_10706": null,
+        "customfield_10508": null,
+        "workratio": -1,
+        "lastViewed": null,
+        "watches": {
+          "self": "https://jira.example.com/rest/api/2/issue/PRJ21-568/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "created": "2026-10-11T11:40:30.000+0000",
+        "priority": {
+          "self": "https://jira.example.com/rest/api/2/priority/4",
+          "name": "Low",
+          "id": "4"
+        },
+        "customfield_10100": null,
+        "customfield_10101": null,
+        "customfield_10102": null,
+        "customfield_10300": null,
+        "labels": [],
+        "customfield_10103": null,
+        "customfield_10301": null,
+        "customfield_10731": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "customfield_10732": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "customfield_10733": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "customfield_10734": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "timeestimate": 0,
+        "aggregatetimeoriginalestimate": null,
+        "versions": [],
+        "issuelinks": [],
+        "assignee": {
+          "self": "https://jira.example.com/rest/api/2/user?username=bob",
+          "name": "bob",
+          "key": "bob",
+          "emailAddress": "bob@example.com",
+          "displayName": "Bob",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "updated": "2026-10-11T12:09:55.000+0000",
+        "status": {
+          "self": "https://jira.example.com/rest/api/2/status/10001",
+          "description": "Sample text 1",
+          "name": "Done",
+          "id": "10001",
+          "statusCategory": {
+            "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "success",
+            "name": "Done"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "Sample text 21",
+        "customfield_10730": null,
+        "customfield_10720": null,
+        "customfield_10600": [],
+        "customfield_10721": null,
+        "customfield_10601": {
+          "errorMessage": "You do not have permission to view this request.",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.request.view.error.no.permission",
+            "parameters": []
+          }
+        },
+        "customfield_10722": null,
+        "customfield_10602": [],
+        "customfield_10723": null,
+        "customfield_10724": null,
+        "customfield_10603": null,
+        "aggregatetimeestimate": 0,
+        "customfield_10725": null,
+        "customfield_10604": null,
+        "customfield_10605": [],
+        "customfield_10726": null,
+        "customfield_10606": "0|i014n3:",
+        "customfield_10727": null,
+        "customfield_10728": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10729": null,
+        "summary": "Sample text 21",
+        "creator": {
+          "self": "https://jira.example.com/rest/api/2/user?username=dave",
+          "name": "dave",
+          "key": "dave",
+          "emailAddress": "dave@example.com",
+          "displayName": "Dave",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://jira.example.com/rest/api/2/user?username=dave",
+          "name": "dave",
+          "key": "dave",
+          "emailAddress": "dave@example.com",
+          "displayName": "Dave",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "customfield_10000": "{}",
+        "aggregateprogress": {
+          "progress": 900,
+          "total": 900,
+          "percent": 100
+        },
+        "customfield_10200": "",
+        "customfield_10400": null,
+        "environment": null,
+        "customfield_10712": null,
+        "duedate": null,
+        "customfield_10718": null,
+        "progress": {
+          "progress": 900,
+          "total": 900,
+          "percent": 100
+        },
+        "customfield_10719": null,
+        "votes": {
+          "self": "https://jira.example.com/rest/api/2/issue/PRJ21-568/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      },
+      "renderedFields": null,
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 3,
+        "total": 3,
+        "histories": [
+          {
+            "id": "46194",
+            "author": {
+              "self": "https://jira.example.com/rest/api/2/user?username=bob",
+              "name": "bob",
+              "key": "bob",
+              "emailAddress": "bob@example.com",
+              "displayName": "Bob",
+              "active": true,
+              "timeZone": "UTC"
+            },
+            "created": "2026-10-11T11:56:28.489+0000",
+            "items": [
+              {
+                "field": "assignee",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "JIRAUSER10002",
+                "toString": "Bob"
+              }
+            ]
+          },
+          {
+            "id": "46202",
+            "author": {
+              "self": "https://jira.example.com/rest/api/2/user?username=bob",
+              "name": "bob",
+              "key": "bob",
+              "emailAddress": "bob@example.com",
+              "displayName": "Bob",
+              "active": true,
+              "timeZone": "UTC"
+            },
+            "created": "2026-10-11T12:09:43.250+0000",
+            "items": [
+              {
+                "field": "timeestimate",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "0",
+                "toString": "0"
+              },
+              {
+                "field": "timespent",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "900",
+                "toString": "900"
+              },
+              {
+                "field": "WorklogId",
+                "fieldtype": "jira",
+                "from": "11823",
+                "fromString": "11823",
+                "to": null,
+                "toString": null
+              }
+            ]
+          },
+          {
+            "id": "46203",
+            "author": {
+              "self": "https://jira.example.com/rest/api/2/user?username=bob",
+              "name": "bob",
+              "key": "bob",
+              "emailAddress": "bob@example.com",
+              "displayName": "Bob",
+              "active": true,
+              "timeZone": "UTC"
+            },
+            "created": "2026-10-11T12:09:55.191+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "10000",
+                "toString": "Done"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "from": "10109",
+                "fromString": "Open",
+                "to": "10001",
+                "toString": "Done"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "17661",
+      "self": "https://jira.example.com/rest/api/2/issue/17661",
+      "key": "PRJ21-554",
+      "fields": {
+        "issuetype": {
+          "self": "https://jira.example.com/rest/api/2/issuetype/10002",
+          "id": "10002",
+          "description": "Sample text 13",
+          "name": "Task",
+          "subtask": false
+        },
+        "timespent": 28800,
+        "project": {
+          "self": "https://jira.example.com/rest/api/2/project/11004",
+          "id": "11004",
+          "key": "PRJ21",
+          "name": "Project PRJ21",
+          "projectTypeKey": "service_desk"
+        },
+        "fixVersions": [],
+        "customfield_10110": null,
+        "customfield_10111": null,
+        "aggregatetimespent": 28800,
+        "resolution": null,
+        "customfield_10302": null,
+        "customfield_10700": null,
+        "customfield_10502": null,
+        "customfield_10305": null,
+        "customfield_10503": null,
+        "customfield_10306": null,
+        "customfield_10108": null,
+        "customfield_10504": null,
+        "customfield_10109": null,
+        "customfield_10505": null,
+        "customfield_10506": null,
+        "resolutiondate": null,
+        "customfield_10705": null,
+        "customfield_10507": null,
+        "customfield_10706": null,
+        "customfield_10508": null,
+        "workratio": -1,
+        "lastViewed": null,
+        "watches": {
+          "self": "https://jira.example.com/rest/api/2/issue/PRJ21-554/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "created": "2026-10-10T15:14:20.000+0000",
+        "priority": {
+          "self": "https://jira.example.com/rest/api/2/priority/4",
+          "name": "Low",
+          "id": "4"
+        },
+        "customfield_10100": null,
+        "customfield_10101": null,
+        "customfield_10102": null,
+        "customfield_10300": null,
+        "labels": [],
+        "customfield_10103": null,
+        "customfield_10301": null,
+        "customfield_10731": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "customfield_10732": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "customfield_10733": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "customfield_10734": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "timeestimate": 0,
+        "aggregatetimeoriginalestimate": null,
+        "versions": [],
+        "issuelinks": [],
+        "assignee": {
+          "self": "https://jira.example.com/rest/api/2/user?username=erin",
+          "name": "erin",
+          "key": "erin",
+          "emailAddress": "erin@example.com",
+          "displayName": "Erin",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "updated": "2026-10-11T12:03:32.000+0000",
+        "status": {
+          "self": "https://jira.example.com/rest/api/2/status/10109",
+          "description": "Sample text 1",
+          "name": "Open",
+          "id": "10109",
+          "statusCategory": {
+            "self": "https://jira.example.com/rest/api/2/statuscategory/1",
+            "id": 1,
+            "key": "undefined",
+            "colorName": "default",
+            "name": "No Category"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": null,
+        "customfield_10730": null,
+        "customfield_10720": null,
+        "customfield_10600": [],
+        "customfield_10721": null,
+        "customfield_10601": {
+          "errorMessage": "You do not have permission to view this request.",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.request.view.error.no.permission",
+            "parameters": []
+          }
+        },
+        "customfield_10722": null,
+        "customfield_10602": [],
+        "customfield_10723": null,
+        "customfield_10724": null,
+        "customfield_10603": null,
+        "aggregatetimeestimate": 0,
+        "customfield_10725": null,
+        "customfield_10604": null,
+        "customfield_10605": [],
+        "customfield_10726": null,
+        "customfield_10606": "0|i014en:",
+        "customfield_10727": null,
+        "customfield_10728": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10729": null,
+        "summary": "Sample text 22",
+        "creator": {
+          "self": "https://jira.example.com/rest/api/2/user?username=erin",
+          "name": "erin",
+          "key": "erin",
+          "emailAddress": "erin@example.com",
+          "displayName": "Erin",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://jira.example.com/rest/api/2/user?username=erin",
+          "name": "erin",
+          "key": "erin",
+          "emailAddress": "erin@example.com",
+          "displayName": "Erin",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "customfield_10000": "{}",
+        "aggregateprogress": {
+          "progress": 28800,
+          "total": 28800,
+          "percent": 100
+        },
+        "customfield_10200": "",
+        "customfield_10400": null,
+        "environment": null,
+        "customfield_10712": null,
+        "duedate": null,
+        "customfield_10718": null,
+        "progress": {
+          "progress": 28800,
+          "total": 28800,
+          "percent": 100
+        },
+        "customfield_10719": null,
+        "votes": {
+          "self": "https://jira.example.com/rest/api/2/issue/PRJ21-554/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      },
+      "renderedFields": null,
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 3,
+        "total": 3,
+        "histories": [
+          {
+            "id": "46087",
+            "author": {
+              "self": "https://jira.example.com/rest/api/2/user?username=erin",
+              "name": "erin",
+              "key": "erin",
+              "emailAddress": "erin@example.com",
+              "displayName": "Erin",
+              "active": true,
+              "timeZone": "UTC"
+            },
+            "created": "2026-10-10T15:14:39.309+0000",
+            "items": [
+              {
+                "field": "assignee",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "JIRAUSER10005",
+                "toString": "Erin"
+              }
+            ]
+          },
+          {
+            "id": "46088",
+            "author": {
+              "self": "https://jira.example.com/rest/api/2/user?username=erin",
+              "name": "erin",
+              "key": "erin",
+              "emailAddress": "erin@example.com",
+              "displayName": "Erin",
+              "active": true,
+              "timeZone": "UTC"
+            },
+            "created": "2026-10-10T15:14:59.699+0000",
+            "items": [
+              {
+                "field": "timeestimate",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "0",
+                "toString": "0"
+              },
+              {
+                "field": "timespent",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "14400",
+                "toString": "14400"
+              },
+              {
+                "field": "WorklogId",
+                "fieldtype": "jira",
+                "from": "11804",
+                "fromString": "11804",
+                "to": null,
+                "toString": null
+              }
+            ]
+          },
+          {
+            "id": "46199",
+            "author": {
+              "self": "https://jira.example.com/rest/api/2/user?username=erin",
+              "name": "erin",
+              "key": "erin",
+              "emailAddress": "erin@example.com",
+              "displayName": "Erin",
+              "active": true,
+              "timeZone": "UTC"
+            },
+            "created": "2026-10-11T12:03:32.322+0000",
+            "items": [
+              {
+                "field": "timespent",
+                "fieldtype": "jira",
+                "from": "14400",
+                "fromString": "14400",
+                "to": "28800",
+                "toString": "28800"
+              },
+              {
+                "field": "WorklogId",
+                "fieldtype": "jira",
+                "from": "11821",
+                "fromString": "11821",
+                "to": null,
+                "toString": null
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "16274",
+      "self": "https://jira.example.com/rest/api/2/issue/16274",
+      "key": "PRJ21-113",
+      "fields": {
+        "issuetype": {
+          "self": "https://jira.example.com/rest/api/2/issuetype/10002",
+          "id": "10002",
+          "description": "Sample text 13",
+          "name": "Task",
+          "subtask": false
+        },
+        "timespent": 1200,
+        "project": {
+          "self": "https://jira.example.com/rest/api/2/project/11004",
+          "id": "11004",
+          "key": "PRJ21",
+          "name": "Project PRJ21",
+          "projectTypeKey": "service_desk"
+        },
+        "fixVersions": [],
+        "customfield_10110": null,
+        "customfield_10111": null,
+        "aggregatetimespent": 1200,
+        "resolution": {
+          "self": "https://jira.example.com/rest/api/2/resolution/10000",
+          "id": "10000",
+          "description": "Sample text 18",
+          "name": "Done"
+        },
+        "customfield_10302": null,
+        "customfield_10700": null,
+        "customfield_10502": null,
+        "customfield_10305": null,
+        "customfield_10503": null,
+        "customfield_10306": null,
+        "customfield_10108": null,
+        "customfield_10504": null,
+        "customfield_10109": null,
+        "customfield_10505": null,
+        "customfield_10506": null,
+        "resolutiondate": "2026-10-11T12:01:28.000+0000",
+        "customfield_10705": null,
+        "customfield_10507": null,
+        "customfield_10706": null,
+        "customfield_10508": null,
+        "workratio": -1,
+        "lastViewed": null,
+        "watches": {
+          "self": "https://jira.example.com/rest/api/2/issue/PRJ21-113/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "created": "2026-08-22T20:20:40.000+0000",
+        "priority": {
+          "self": "https://jira.example.com/rest/api/2/priority/3",
+          "name": "Medium",
+          "id": "3"
+        },
+        "customfield_10100": null,
+        "customfield_10101": null,
+        "customfield_10102": null,
+        "customfield_10300": null,
+        "labels": [],
+        "customfield_10103": null,
+        "customfield_10301": null,
+        "customfield_10731": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "customfield_10732": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "customfield_10733": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "customfield_10734": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "timeestimate": 0,
+        "aggregatetimeoriginalestimate": null,
+        "versions": [],
+        "issuelinks": [],
+        "assignee": {
+          "self": "https://jira.example.com/rest/api/2/user?username=frank",
+          "name": "frank",
+          "key": "frank",
+          "emailAddress": "frank@example.com",
+          "displayName": "Frank",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "updated": "2026-10-11T12:01:28.000+0000",
+        "status": {
+          "self": "https://jira.example.com/rest/api/2/status/10001",
+          "description": "Sample text 1",
+          "name": "Done",
+          "id": "10001",
+          "statusCategory": {
+            "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "success",
+            "name": "Done"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "Sample text 23",
+        "customfield_10730": null,
+        "customfield_10720": null,
+        "customfield_10600": [],
+        "customfield_10721": null,
+        "customfield_10601": null,
+        "customfield_10722": null,
+        "customfield_10602": [],
+        "customfield_10723": null,
+        "customfield_10724": null,
+        "customfield_10603": null,
+        "aggregatetimeestimate": 0,
+        "customfield_10725": null,
+        "customfield_10604": null,
+        "customfield_10605": [],
+        "customfield_10726": null,
+        "customfield_10606": "0|i00vun:",
+        "customfield_10727": null,
+        "customfield_10728": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10729": null,
+        "summary": "Sample text 24",
+        "creator": {
+          "self": "https://jira.example.com/rest/api/2/user?username=carol",
+          "name": "carol",
+          "key": "carol",
+          "emailAddress": "carol@example.com",
+          "displayName": "Carol",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://jira.example.com/rest/api/2/user?username=carol",
+          "name": "carol",
+          "key": "carol",
+          "emailAddress": "carol@example.com",
+          "displayName": "Carol",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "customfield_10000": "{}",
+        "aggregateprogress": {
+          "progress": 1200,
+          "total": 1200,
+          "percent": 100
+        },
+        "customfield_10200": "",
+        "customfield_10400": null,
+        "environment": null,
+        "customfield_10712": null,
+        "duedate": null,
+        "customfield_10718": null,
+        "progress": {
+          "progress": 1200,
+          "total": 1200,
+          "percent": 100
+        },
+        "customfield_10719": null,
+        "votes": {
+          "self": "https://jira.example.com/rest/api/2/issue/PRJ21-113/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      },
+      "renderedFields": null,
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 3,
+        "total": 3,
+        "histories": [
+          {
+            "id": "46098",
+            "author": {
+              "self": "https://jira.example.com/rest/api/2/user?username=grace",
+              "name": "grace",
+              "key": "grace",
+              "emailAddress": "grace@example.com",
+              "displayName": "Grace",
+              "active": true,
+              "timeZone": "UTC"
+            },
+            "created": "2026-10-10T15:20:37.543+0000",
+            "items": [
+              {
+                "field": "assignee",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "JIRAUSER10006",
+                "toString": "Frank"
+              }
+            ]
+          },
+          {
+            "id": "46197",
+            "author": {
+              "self": "https://jira.example.com/rest/api/2/user?username=frank",
+              "name": "frank",
+              "key": "frank",
+              "emailAddress": "frank@example.com",
+              "displayName": "Frank",
+              "active": true,
+              "timeZone": "UTC"
+            },
+            "created": "2026-10-11T12:01:21.992+0000",
+            "items": [
+              {
+                "field": "timeestimate",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "0",
+                "toString": "0"
+              },
+              {
+                "field": "timespent",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "1200",
+                "toString": "1200"
+              },
+              {
+                "field": "WorklogId",
+                "fieldtype": "jira",
+                "from": "11820",
+                "fromString": "11820",
+                "to": null,
+                "toString": null
+              }
+            ]
+          },
+          {
+            "id": "46198",
+            "author": {
+              "self": "https://jira.example.com/rest/api/2/user?username=frank",
+              "name": "frank",
+              "key": "frank",
+              "emailAddress": "frank@example.com",
+              "displayName": "Frank",
+              "active": true,
+              "timeZone": "UTC"
+            },
+            "created": "2026-10-11T12:01:28.201+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "10000",
+                "toString": "Done"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "from": "10109",
+                "fromString": "Open",
+                "to": "10001",
+                "toString": "Done"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "17660",
+      "self": "https://jira.example.com/rest/api/2/issue/17660",
+      "key": "PRJ21-553",
+      "fields": {
+        "issuetype": {
+          "self": "https://jira.example.com/rest/api/2/issuetype/10002",
+          "id": "10002",
+          "description": "Sample text 13",
+          "name": "Task",
+          "subtask": false
+        },
+        "timespent": 1200,
+        "project": {
+          "self": "https://jira.example.com/rest/api/2/project/11004",
+          "id": "11004",
+          "key": "PRJ21",
+          "name": "Project PRJ21",
+          "projectTypeKey": "service_desk"
+        },
+        "fixVersions": [],
+        "customfield_10110": null,
+        "customfield_10111": null,
+        "aggregatetimespent": 1200,
+        "resolution": {
+          "self": "https://jira.example.com/rest/api/2/resolution/10000",
+          "id": "10000",
+          "description": "Sample text 18",
+          "name": "Done"
+        },
+        "customfield_10302": null,
+        "customfield_10700": null,
+        "customfield_10502": null,
+        "customfield_10305": null,
+        "customfield_10503": null,
+        "customfield_10306": null,
+        "customfield_10108": null,
+        "customfield_10504": null,
+        "customfield_10109": null,
+        "customfield_10505": null,
+        "customfield_10506": null,
+        "resolutiondate": "2026-10-11T12:01:08.000+0000",
+        "customfield_10705": null,
+        "customfield_10507": null,
+        "customfield_10706": null,
+        "customfield_10508": null,
+        "workratio": -1,
+        "lastViewed": null,
+        "watches": {
+          "self": "https://jira.example.com/rest/api/2/issue/PRJ21-553/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "created": "2026-10-10T14:53:22.000+0000",
+        "priority": {
+          "self": "https://jira.example.com/rest/api/2/priority/4",
+          "name": "Low",
+          "id": "4"
+        },
+        "customfield_10100": null,
+        "customfield_10101": null,
+        "customfield_10102": null,
+        "customfield_10300": null,
+        "labels": [],
+        "customfield_10103": null,
+        "customfield_10301": null,
+        "customfield_10731": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "customfield_10732": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "customfield_10733": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "customfield_10734": {
+          "errorMessage": "You do not have permission to fetch the list of SLA custom fields",
+          "i18nErrorMessage": {
+            "i18nKey": "sd.sla.field.service.permission.error.fetch",
+            "parameters": []
+          }
+        },
+        "timeestimate": 0,
+        "aggregatetimeoriginalestimate": null,
+        "versions": [],
+        "issuelinks": [],
+        "assignee": {
+          "self": "https://jira.example.com/rest/api/2/user?username=frank",
+          "name": "frank",
+          "key": "frank",
+          "emailAddress": "frank@example.com",
+          "displayName": "Frank",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "updated": "2026-10-11T12:01:08.000+0000",
+        "status": {
+          "self": "https://jira.example.com/rest/api/2/status/10001",
+          "description": "Sample text 1",
+          "name": "Done",
+          "id": "10001",
+          "statusCategory": {
+            "self": "https://jira.example.com/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "success",
+            "name": "Done"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "Sample text 25",
+        "customfield_10730": null,
+        "customfield_10720": null,
+        "customfield_10600": [],
+        "customfield_10721": null,
+        "customfield_10601": null,
+        "customfield_10722": null,
+        "customfield_10602": [],
+        "customfield_10723": null,
+        "customfield_10724": null,
+        "customfield_10603": null,
+        "aggregatetimeestimate": 0,
+        "customfield_10725": null,
+        "customfield_10604": null,
+        "customfield_10605": [],
+        "customfield_10726": null,
+        "customfield_10606": "0|i014ef:",
+        "customfield_10727": null,
+        "customfield_10728": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10729": null,
+        "summary": "Sample text 26",
+        "creator": {
+          "self": "https://jira.example.com/rest/api/2/user?username=carol",
+          "name": "carol",
+          "key": "carol",
+          "emailAddress": "carol@example.com",
+          "displayName": "Carol",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://jira.example.com/rest/api/2/user?username=carol",
+          "name": "carol",
+          "key": "carol",
+          "emailAddress": "carol@example.com",
+          "displayName": "Carol",
+          "active": true,
+          "timeZone": "UTC"
+        },
+        "customfield_10000": "{}",
+        "aggregateprogress": {
+          "progress": 1200,
+          "total": 1200,
+          "percent": 100
+        },
+        "customfield_10200": "",
+        "customfield_10400": null,
+        "environment": null,
+        "customfield_10712": null,
+        "duedate": null,
+        "customfield_10718": null,
+        "progress": {
+          "progress": 1200,
+          "total": 1200,
+          "percent": 100
+        },
+        "customfield_10719": null,
+        "votes": {
+          "self": "https://jira.example.com/rest/api/2/issue/PRJ21-553/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      },
+      "renderedFields": null,
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 3,
+        "total": 3,
+        "histories": [
+          {
+            "id": "46081",
+            "author": {
+              "self": "https://jira.example.com/rest/api/2/user?username=grace",
+              "name": "grace",
+              "key": "grace",
+              "emailAddress": "grace@example.com",
+              "displayName": "Grace",
+              "active": true,
+              "timeZone": "UTC"
+            },
+            "created": "2026-10-10T15:08:56.386+0000",
+            "items": [
+              {
+                "field": "assignee",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "JIRAUSER10006",
+                "toString": "Frank"
+              }
+            ]
+          },
+          {
+            "id": "46195",
+            "author": {
+              "self": "https://jira.example.com/rest/api/2/user?username=frank",
+              "name": "frank",
+              "key": "frank",
+              "emailAddress": "frank@example.com",
+              "displayName": "Frank",
+              "active": true,
+              "timeZone": "UTC"
+            },
+            "created": "2026-10-11T12:01:03.869+0000",
+            "items": [
+              {
+                "field": "timeestimate",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "0",
+                "toString": "0"
+              },
+              {
+                "field": "timespent",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "1200",
+                "toString": "1200"
+              },
+              {
+                "field": "WorklogId",
+                "fieldtype": "jira",
+                "from": "11819",
+                "fromString": "11819",
+                "to": null,
+                "toString": null
+              }
+            ]
+          },
+          {
+            "id": "46196",
+            "author": {
+              "self": "https://jira.example.com/rest/api/2/user?username=frank",
+              "name": "frank",
+              "key": "frank",
+              "emailAddress": "frank@example.com",
+              "displayName": "Frank",
+              "active": true,
+              "timeZone": "UTC"
+            },
+            "created": "2026-10-11T12:01:08.356+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "10000",
+                "toString": "Done"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "from": "10109",
+                "fromString": "Open",
+                "to": "10001",
+                "toString": "Done"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "warningMessages": null,
+  "names": null,
+  "schema": null
+}
