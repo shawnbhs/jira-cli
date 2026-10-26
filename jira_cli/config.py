@@ -496,24 +496,34 @@ def load_settings(
     )
 
 
-def describe_settings(s: Settings) -> dict:
-    """Return a dict that is safe to print: the secret becomes ``set (N chars)``."""
-    return {
+def describe_settings(s: Settings, *, local: bool = False) -> dict:
+    """Return a dict that is safe to print.
+
+    The secret is reported as ``set`` or ``not set`` only; its length is a
+    hint about the credential type and is not shown. Filesystem paths
+    (``config_dir``, ``teams_file``, ``filters_file``) reveal the OS user name
+    and home layout, so they are included only when ``local`` is true: pass it
+    from a terminal command shown to the local user, never from the MCP
+    server, whose output goes to a model.
+    """
+    described = {
         "base_url": display_url(s.base_url),
         "auth_mode": s.auth_mode,
         "username": s.username or "(resolved from /myself)",
-        "secret": f"set ({len(s.secret)} chars)" if s.secret else "not set",
+        "secret": "set" if s.secret else "not set",
         "default_project": s.default_project or "(none)",
         "verify_tls": s.verify_tls,
         "timeout": s.timeout,
         "read_only": s.read_only,
         "hours_per_day": s.hours_per_day,
         "days_per_week": s.days_per_week,
-        "config_dir": str(s.config_dir),
-        "teams_file": str(s.teams_file),
-        "filters_file": str(s.filters_file),
         "field_overrides": dict(s.field_overrides),
     }
+    if local:
+        described["config_dir"] = str(s.config_dir)
+        described["teams_file"] = str(s.teams_file)
+        described["filters_file"] = str(s.filters_file)
+    return described
 
 
 __all__ = [

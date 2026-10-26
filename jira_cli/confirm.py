@@ -2,8 +2,15 @@
 
 The MCP server never mutates Jira on the first call to a write tool. It builds a
 preview, mints a token with :meth:`ConfirmStore.issue`, and returns both to the
-client so a human can read the preview and approve it. Only a *second* call that
-carries the token **and** byte-identical arguments is allowed to execute.
+client. Only a *second* call that carries the token **and** byte-identical
+arguments is allowed to execute.
+
+What the token is, and is not: it is an argument-binding, anti-tamper check
+that the executing call is exactly the previewed one (the MCP server also adds
+the values it resolved from the arguments to the digested mapping). It is
+**not human consent** -- the token is returned to the same model that redeems
+it. Human approval is the MCP client's per-call tool approval, which the
+server's ``ToolAnnotations`` let the client apply to write tools only.
 
 Design notes (the threat being defended against is a prompt-injected write):
 

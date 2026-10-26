@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "jira-cli-manager"
-version = "2.0.0"
+version = "2.1.0"
 description = "Manager-oriented command line client and MCP server for Jira Software Server"
 readme = "README.md"
 license = { text = "MIT" }
@@ -32,15 +32,18 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Ranged, not open: a new major/minor of a linter or test runner can change
+# the CI verdict on unchanged code. Raise the ranges deliberately.
 dev = [
-    "pytest",
-    "ruff",
-    "bandit",
-    "pip-audit",
+    "pytest>=9.1,<10",
+    "ruff>=0.17,<0.18",
+    "bandit>=1.9,<2",
+    "pip-audit>=2.10,<3",
 ]
 
 [project.scripts]
 jira = "jira_cli.cli.main:main"
+jira-cli = "jira_cli.cli.main:main"
 jira-mcp = "jira_cli.mcp_server:main"
 
 [tool.setuptools.packages.find]

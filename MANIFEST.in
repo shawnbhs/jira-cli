@@ -1,0 +1,15 @@
+# Source distribution contents.
+#
+# The sdist ships the package and its metadata only. The test suite depends on
+# conftest.py and JSON fixtures that setuptools would not pick up on its own,
+# so a partial copy would be broken; the maintainer scripts and CI config are
+# repository tooling, not part of the distribution. Run the tests from a
+# clone of the repository instead.
+include LICENSE README.md CHANGELOG.md SECURITY.md
+
+prune tests
+prune scripts
+prune docs
+prune .github
+
+global-exclude *.py[cod] __pycache__ .env *.env *.applied.json

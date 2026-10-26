@@ -111,15 +111,21 @@ def list_projects(client: JiraClient) -> list[dict]:
         client: Configured Jira client.
 
     Returns:
-        A list of ``{"key", "name", "lead", "type"}`` dicts. ``lead`` is a username
-        (or ``None`` when the server omits it from the list response).
+        A list of ``{"key", "name", "lead", "lead_name", "type"}`` dicts. ``lead``
+        is the lead's username and ``lead_name`` their display name; either is
+        ``None`` when the server does not report it.
+
+    Note:
+        Jira Server leaves ``lead`` out of the project *list* unless it is asked
+        for with ``expand=lead``, so the request always carries it.
     """
-    raw = client.get("/rest/api/2/project") or []
+    raw = client.get("/rest/api/2/project", {"expand": "lead"}) or []
     return [
         {
             "key": p.get("key"),
             "name": p.get("name"),
             "lead": _lead_username(p),
+            "lead_name": _lead_display_name(p),
             "type": p.get("projectTypeKey"),
         }
         for p in raw

@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import re
 
-__all__ = ["terminal_safe", "terminal_safe_line"]
+__all__ = ["csv_safe_cell", "terminal_safe", "terminal_safe_line"]
 
 # C0 controls except \t (0x09) and \n (0x0A), DEL, the C1 block, and the
 # bidi embedding/override/isolate characters.
@@ -41,3 +41,29 @@ def terminal_safe_line(text: object) -> str:
     could fake an extra row.
     """
     return terminal_safe(text).replace("\n", " ").replace("\t", " ")
+
+
+#: Leading characters a spreadsheet may read as the start of a formula.
+CSV_FORMULA_PREFIXES = ("=", "+", "-", "@", "\t", "\r")
+
+
+def csv_safe_cell(text: object) -> str:
+    """Return ``text`` as a CSV cell that is terminal-safe and formula-inert.
+
+    Control and bidi characters are removed FIRST, and only then is the
+    formula check applied.  The order matters: checking first lets a value
+    such as ``"\\x1b=HYPERLINK(...)"`` pass (its first character is ESC) and
+    become a live ``=HYPERLINK(...)`` once a later pass strips the ESC.
+    A cell gets a leading ``'`` (so spreadsheets show it as text) when either
+    the raw value or the cleaned value, after leading blanks, starts with a
+    formula character.  Newlines inside the cell are kept
+    (CSV quotes them); stripping is idempotent, so running
+    :func:`terminal_safe` over the rendered CSV again changes nothing.
+    """
+    raw = "" if text is None else str(text)
+    cleaned = terminal_safe(raw)
+    if raw.startswith(CSV_FORMULA_PREFIXES) or cleaned.lstrip(" \t\n").startswith(
+        CSV_FORMULA_PREFIXES
+    ):
+        return "'" + cleaned
+    return cleaned

@@ -174,6 +174,8 @@ def user_worklogs(
     since: str,
     until: str | None = None,
     projects: list[str] | None = None,
+    *,
+    notes: list[str] | None = None,
 ) -> list[dict]:
     """Worklog entries logged by given users inside a date window.
 
@@ -183,6 +185,9 @@ def user_worklogs(
         since: ``YYYY-MM-DD`` or a relative form (``7d``, ``2w``, ``today``).
         until: Inclusive end of the window; ``None`` means "up to now".
         projects: Optional project keys to restrict the search to.
+        notes: Optional list that receives a ``truncated:`` line when more
+            than :data:`jira_cli.services.reports.MAX_FETCH` candidate issues
+            match; only that many are read either way.
 
     Returns:
         A list of ``{"key", "summary", "author", "started", "seconds",
@@ -199,7 +204,12 @@ def user_worklogs(
     end = resolve_date(until) if until else None
 
     jql = _worklog_jql(people, start, end, project_keys)
-    issues = client.search(jql, fields=["summary"]) or []
+    from . import reports
+
+    capped: list[str] = []
+    issues = reports.capped_search(client, jql, fields=["summary"], notes=capped)
+    if notes is not None:
+        notes.extend(capped)
 
     wanted = set(people)
     rows: list[dict] = []
@@ -250,7 +260,8 @@ def worklog_report(
     Returns:
         The shared report shape from :func:`jira_cli.report.make_report`.
     """
-    entries = user_worklogs(client, usernames, since, until, projects)
+    notes: list[str] = []
+    entries = user_worklogs(client, usernames, since, until, projects, notes=notes)
 
     totals: dict[tuple[str, str], int] = {}
     summaries: dict[str, Any] = {}
@@ -296,6 +307,9 @@ def worklog_report(
             "means row hours can differ from the user total by up to 0.01."
         ),
     }
+    from . import reports
+
+    reports.mark_truncated(summary, meta, notes)
     return make_report(
         "Worklog report",
         ["user", "key", "summary", "hours"],

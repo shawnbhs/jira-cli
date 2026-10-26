@@ -27,9 +27,18 @@ htmlcov/
 *.applied.json
 plans/
 reports/
+exports/
 .scan-out/
+# report and plan files written by `jira` when run from the repo root; the
+# menu now defaults to ~/.local/share/jira-cli, these catch typed paths.
+# Root-anchored on purpose: tests/fixtures/*.json and docs/*.md are tracked.
+/*.csv
+/*.json
+/*report*.md
+/*plan*.yaml
+/*plan*.yml
 
-# --- Windows download markers (alternate data streams copied into WSL) ---
+# --- Windows download markers (alternate data streams copied from Windows) ---
 *:Zone.Identifier
 *.Zone.Identifier
 

@@ -20,6 +20,7 @@ Design notes
 
 from __future__ import annotations
 
+import re
 from collections.abc import Sequence
 from datetime import date, datetime, timezone
 from typing import Any
@@ -47,6 +48,14 @@ DASHBOARD_STALE_DAYS = 5
 #: Comment/worklog bodies are truncated to this many characters in activity rows.
 DETAIL_CHARS = 160
 
+#: Hard upper bound on the issues any single report search may fetch.  Report
+#: tools are reachable from the MCP server, and an unbounded query (all
+#: projects, ``days=0``, a far-past ``since``) would otherwise page through
+#: every matching issue on the server from one call.  When the cap is hit the
+#: report keeps the first ``MAX_FETCH`` issues and says so in ``meta``
+#: (``truncated``/``notes``) and in ``summary["truncated"]``.
+MAX_FETCH = 5000
+
 #: English status category labels mapped to the stable API keys.
 _CATEGORY_NAME_TO_KEY = {
     "to do": "new",
@@ -59,6 +68,27 @@ _CATEGORY_NAME_TO_KEY = {
 _ESTIMATE_FIELDS = ["timetracking", "timeestimate", "timeoriginalestimate"]
 
 _INCOMPLETE_CHECKS = ("description", "priority", "estimate", "assignee", "due")
+
+#: The ``person_activity`` involvement predicates, in query order, as
+#: ``(field Jira names in its error, JQL operator prefix)``.  Jira Server
+#: rejects the *whole* search with HTTP 400 when a user it knows has never held
+#: one of these roles (e.g. ``assignee was`` for someone never assigned), so
+#: rejected predicates are dropped and the search retried.
+_INVOLVEMENT_PREDICATES = (
+    ("assignee", "assignee was"),
+    ("assignee", "assignee ="),
+    ("reporter", "reporter ="),
+    ("worklogAuthor", "worklogAuthor ="),
+)
+
+#: How Jira Server words a value its field does not know; one message per
+#: offending clause, so a field may appear more than once.
+_UNKNOWN_VALUE = re.compile(r"does not exist for the field '([^']+)'", re.IGNORECASE)
+
+#: How many near matches to offer when a username does not exist, and how many
+#: search hits they are ranked from.
+_USER_SUGGESTIONS = 3
+_USER_SEARCH_LIMIT = 50
 
 
 # --------------------------------------------------------------------------- #
@@ -134,6 +164,54 @@ def _make_report(
     from jira_cli.report import make_report
 
     return make_report(title, columns, rows, summary=summary, meta=meta)
+
+
+def capped_search(
+    client: Any,
+    jql: str,
+    *,
+    fields: list[str] | None = None,
+    expand: list[str] | None = None,
+    notes: list[str],
+) -> list[dict]:
+    """``client.search`` bounded to :data:`MAX_FETCH` issues.
+
+    Asks Jira for one issue more than the cap so a hit is detectable without a
+    separate count request.  When more than the cap match, the first
+    ``MAX_FETCH`` issues are returned and a plain-English line is appended to
+    ``notes``; callers mark the report truncated when ``notes`` grew.
+
+    A cap below 1 is refused rather than read as "no limit".
+    """
+    cap = int(MAX_FETCH)
+    if cap < 1:
+        raise _input_error(f"MAX_FETCH must be >= 1, got {cap}")
+    issues = client.search(jql, fields=fields, expand=expand, limit=cap + 1) or []
+    if len(issues) > cap:
+        notes.append(
+            f"truncated: more than {cap} issues matched {jql!r}; only the first "
+            f"{cap} were fetched, so this report is incomplete. Narrow the query "
+            "(projects, usernames, dates) to see everything."
+        )
+        return list(issues[:cap])
+    return issues
+
+
+def mark_truncated(summary: dict, meta: dict, notes: list[str]) -> None:
+    """Record capped searches in ``meta`` and, only when capped, in ``summary``.
+
+    ``meta["truncated"]`` is always present; the summary line is added only on
+    truncation so a normal report keeps its existing summary shape while a
+    capped one shows the warning in the table and Markdown renderings.
+    """
+    capped = [n for n in notes if n.startswith("truncated:")]
+    meta["truncated"] = bool(capped)
+    if capped:
+        summary["truncated"] = f"yes - results capped at {int(MAX_FETCH)} issues per query"
+        meta.setdefault("notes", [])
+        for note in capped:
+            if note not in meta["notes"]:
+                meta["notes"].append(note)
 
 
 def _resolve_date(text: str, today: date | None = None) -> str:
@@ -360,6 +438,7 @@ def team_dashboard(
     project = _project_clause(projects)
     jqls: list[str] = []
     rows: list[dict] = []
+    notes: list[str] = []
 
     for username in usernames:
         mine = _and(_in_clause("assignee", [username]), project)
@@ -387,10 +466,14 @@ def team_dashboard(
 
         open_jql = _and(mine, f"statusCategory != {CATEGORY_DONE}")
         jqls.append(open_jql)
-        open_issues = client.search(open_jql, fields=list(_ESTIMATE_FIELDS))
+        open_issues = capped_search(
+            client, open_jql, fields=list(_ESTIMATE_FIELDS), notes=notes
+        )
         remaining = sum(_remaining_seconds(_fields(i)) for i in open_issues or [])
         row["total_estimate_open"] = _hours(remaining)
-        row["logged_since"] = _logged_hours(client, username, since_day, projects)
+        row["logged_since"] = _logged_hours(
+            client, username, since_day, projects, notes
+        )
         rows.append(row)
 
     columns = [
@@ -432,13 +515,18 @@ def team_dashboard(
             "neither open_todo nor in_progress."
         ),
     }
+    mark_truncated(summary, meta, notes)
     return _make_report(
         "Team dashboard", columns, rows, summary=summary, meta=meta
     )
 
 
 def _logged_hours(
-    client: Any, username: str, since_day: str, projects: list[str] | None
+    client: Any,
+    username: str,
+    since_day: str,
+    projects: list[str] | None,
+    notes: list[str] | None = None,
 ) -> float:
     """Hours ``username`` logged on or after ``since_day`` (``YYYY-MM-DD``).
 
@@ -448,13 +536,152 @@ def _logged_hours(
     """
     from jira_cli.services import worklog
 
-    entries = worklog.user_worklogs(client, [username], since_day, None, projects)
+    if notes is None:
+        entries = worklog.user_worklogs(client, [username], since_day, None, projects)
+    else:
+        entries = worklog.user_worklogs(
+            client, [username], since_day, None, projects, notes=notes
+        )
     return _hours(sum(int(e.get("seconds") or 0) for e in entries or []))
 
 
 # --------------------------------------------------------------------------- #
 # person_activity
 # --------------------------------------------------------------------------- #
+
+def _require_known_user(client: Any, username: str) -> None:
+    """Raise :class:`InputError` unless Jira knows ``username``.
+
+    Without this check an unknown name reaches the search as four field values
+    Jira does not know, and the user sees four duplicated HTTP 400 messages.
+    """
+    from jira_cli.errors import NotFoundError
+    from jira_cli.services import people
+
+    try:
+        people.get_user(client, username)
+    except NotFoundError:
+        raise _input_error(_unknown_user_message(client, username)) from None
+
+
+def _unknown_user_message(client: Any, username: str) -> str:
+    """``no Jira user 'x'`` plus up to :data:`_USER_SUGGESTIONS` near matches.
+
+    Jira's user search matches the start of any name word (``jan`` finds
+    ``j.doe`` via "Jane Doe") and returns names alphabetically, so the first
+    page is a poor guess.  The matches are re-ranked: usernames containing the
+    typed text first, then the most similar, then alphabetical.
+    """
+    from difflib import SequenceMatcher
+
+    from jira_cli.errors import JiraError
+    from jira_cli.services import people
+
+    typed = username.strip()
+    message = f"no Jira user {typed!r}"
+    try:
+        matches = people.search_users(client, typed, limit=_USER_SEARCH_LIMIT)
+    except JiraError:
+        # Suggestions are a courtesy; the missing user is the real error.
+        return message
+    folded = typed.casefold()
+
+    def closeness(name: str) -> tuple[bool, float, str]:
+        lowered = name.casefold()
+        similarity = SequenceMatcher(None, folded, lowered).ratio()
+        return (folded not in lowered, -similarity, lowered)
+
+    names = sorted({m["username"] for m in matches if m.get("username")}, key=closeness)
+    if not names:
+        return f"{message} (no similar usernames found)"
+    return f"{message}; did you mean: {', '.join(names[:_USER_SUGGESTIONS])}"
+
+
+def _rejected_fields(error: Exception, fields: set[str]) -> list[str] | None:
+    """Involvement fields a Jira 400 rejected, one entry per rejected clause.
+
+    Returns ``None`` when the error is anything else -- another status, no
+    recognisable message, or a rejected field that is not an involvement field
+    (such as an unknown ``project``) -- so the caller re-raises it unchanged.
+    """
+    if getattr(error, "status", None) != 400:
+        return None
+    named = _UNKNOWN_VALUE.findall(getattr(error, "message", "") or str(error))
+    by_lower = {field.lower(): field for field in fields}
+    if not named or any(name.lower() not in by_lower for name in named):
+        return None
+    return [by_lower[name.lower()] for name in named]
+
+
+def _drop_rejected(
+    predicates: list[tuple[str, str]], rejected: list[str]
+) -> list[tuple[str, str]]:
+    """Remove, per rejected entry, the first remaining predicate on that field.
+
+    Jira names the field, not the operator; ``assignee was`` precedes
+    ``assignee =`` because it is the one Jira rejects for a never-assigned user.
+    Returns the dropped predicates.
+    """
+    dropped: list[tuple[str, str]] = []
+    for field in rejected:
+        for predicate in predicates:
+            if predicate[0] == field:
+                predicates.remove(predicate)
+                dropped.append(predicate)
+                break
+    return dropped
+
+
+def _search_involved(
+    client: Any, username: str, filters: list[str | None], notes: list[str]
+) -> tuple[list[dict], list[str]]:
+    """Search issues ``username`` is involved with, dropping rejected predicates.
+
+    Args:
+        client: A ``JiraClient``.
+        username: The (existing) user to search for.
+        filters: Extra clauses ANDed after the involvement group.
+        notes: Receives one plain-English line per dropped predicate, and a
+            ``truncated:`` line when more than :data:`MAX_FETCH` issues match.
+
+    Returns:
+        ``(issues, [jql])`` for the search that succeeded, or ``([], jqls)``
+        with every rejected attempt when Jira rejected every predicate.
+    """
+    from jira_cli.errors import JiraError
+
+    quoted = jql_quote(username)
+    predicates = list(_INVOLVEMENT_PREDICATES)
+    attempted: list[str] = []
+    while predicates:
+        involved = " OR ".join(f"{prefix} {quoted}" for _, prefix in predicates)
+        jql = _and(f"({involved})", *filters)
+        attempted.append(jql)
+        try:
+            issues = capped_search(
+                client,
+                jql,
+                fields=["summary", "created", "reporter", "comment", "worklog"],
+                expand=["changelog"],
+                notes=notes,
+            )
+        except JiraError as error:
+            rejected = _rejected_fields(error, {f for f, _ in predicates})
+            if rejected is None:
+                raise
+            for field, prefix in _drop_rejected(predicates, rejected):
+                notes.append(
+                    f"dropped '{prefix} {quoted}': Jira rejected {quoted} for "
+                    f"field '{field}' (HTTP 400, the user never held that role)"
+                )
+            continue
+        return issues or [], [jql]
+    notes.append(
+        f"Jira rejected every involvement predicate for {quoted}, so no issues "
+        "could be searched and the report is empty"
+    )
+    return [], attempted
+
 
 def person_activity(
     client: Any,
@@ -480,28 +707,25 @@ def person_activity(
 
     Returns:
         The report shape with columns ``when, key, summary, action, detail``.
+        ``meta["notes"]`` lists every involvement predicate Jira rejected and
+        that was therefore dropped (empty when none were).
+
+    Raises:
+        InputError: When Jira has no user called ``username``; the message
+            offers up to three similar usernames.
     """
     since_day = _resolve_date(since)
     until_day = _resolve_date(until) if until else None
+    _require_known_user(client, username)
 
-    involved = (
-        f"(assignee was {jql_quote(username)} "
-        f"OR assignee = {jql_quote(username)} "
-        f"OR reporter = {jql_quote(username)} "
-        f"OR worklogAuthor = {jql_quote(username)})"
+    notes: list[str] = []
+    issues, jqls = _search_involved(
+        client,
+        username,
+        [f"updated >= {jql_quote(since_day)}", _project_clause(projects)],
+        notes,
     )
-    jql = _and(
-        involved,
-        f"updated >= {jql_quote(since_day)}",
-        _project_clause(projects),
-    )
-    jqls = [jql]
     requests_made: list[str] = []
-    issues = client.search(
-        jql,
-        fields=["summary", "created", "reporter", "comment", "worklog"],
-        expand=["changelog"],
-    ) or []
 
     events: list[dict] = []
     for raw in issues:
@@ -544,13 +768,19 @@ def person_activity(
     meta = {
         "jql": jqls,
         "requests": requests_made,
+        "notes": notes,
         "since": since_day,
         "until": until_day,
         "projects": list(projects) if projects else None,
         "method": (
-            "One search for issues the user is or was involved with "
+            "The username is first looked up (/rest/api/2/user); an unknown "
+            "user is an input error with similar usernames suggested. Then one "
+            "search for issues the user is or was involved with "
             "(assignee was/is, reporter, worklogAuthor) and that were updated "
-            "in the window, expanded with the changelog. Events are kept only "
+            "in the window, expanded with the changelog. When Jira rejects one "
+            "of those predicates because the user never held that role (HTTP "
+            "400 'does not exist for the field'), that predicate is dropped, "
+            "the search is retried and meta.notes says so. Events are kept only "
             "when the user authored them: issue created (they are the "
             "reporter), changelog items under their name, comments they wrote, "
             "worklogs they logged. Comment and worklog lists embedded in the "
@@ -573,6 +803,7 @@ def person_activity(
             "to the window by calendar date of the Jira timestamp."
         ),
     }
+    mark_truncated(summary_block, meta, notes)
     return _make_report(
         f"Activity: {username}",
         ["when", "key", "summary", "action", "detail"],
@@ -808,7 +1039,8 @@ def stale_issues(
         ),
         "updated ASC",
     )
-    issues = client.search(jql, fields=_LIST_FIELDS) or []
+    notes: list[str] = []
+    issues = capped_search(client, jql, fields=_LIST_FIELDS, notes=notes)
     today = _today()
 
     rows = []
@@ -846,11 +1078,13 @@ def stale_issues(
             "are invisible."
         ),
     }
+    summary = {"issues": len(rows), "days": days}
+    mark_truncated(summary, meta, notes)
     return _make_report(
         f"Stale issues (no update for {days}d+)",
         columns,
         rows,
-        summary={"issues": len(rows), "days": days},
+        summary=summary,
         meta=meta,
     )
 
@@ -870,7 +1104,8 @@ def overdue_issues(
         ),
         "duedate ASC",
     )
-    issues = client.search(jql, fields=_LIST_FIELDS) or []
+    notes: list[str] = []
+    issues = capped_search(client, jql, fields=_LIST_FIELDS, notes=notes)
     today = _today()
 
     rows = []
@@ -908,11 +1143,13 @@ def overdue_issues(
             "evaluated by the Jira server in its own time zone."
         ),
     }
+    summary = {"issues": len(rows)}
+    mark_truncated(summary, meta, notes)
     return _make_report(
         "Overdue issues",
         columns,
         rows,
-        summary={"issues": len(rows)},
+        summary=summary,
         meta=meta,
     )
 
@@ -958,7 +1195,8 @@ def incomplete_issues(
         "created DESC",
     )
     fields = list(_LIST_FIELDS) + ["description"]
-    issues = client.search(jql, fields=fields) or []
+    notes: list[str] = []
+    issues = capped_search(client, jql, fields=fields, notes=notes)
 
     rows = []
     missing_totals = {name: 0 for name in selected}
@@ -1005,11 +1243,12 @@ def incomplete_issues(
             "priority at all; a project whose default priority is always "
             "applied will never flag it. A description containing only "
             "whitespace or a placeholder counts as present. Required custom "
-            "fields and story points are not checked. Every open issue is "
-            "fetched, so on large projects pass 'projects' to keep the query "
-            "bounded."
+            "fields and story points are not checked. Open issues are "
+            f"fetched up to {int(MAX_FETCH)}; past that the report is marked "
+            "truncated, so on large projects pass 'projects'."
         ),
     }
+    mark_truncated(summary, meta, notes)
     return _make_report(
         "Incomplete issues", columns, rows, summary=summary, meta=meta
     )
@@ -1048,7 +1287,8 @@ def unassigned_issues(client: Any, projects: list[str] | None = None) -> dict:
         ),
         "created ASC",
     )
-    issues = client.search(jql, fields=_LIST_FIELDS) or []
+    notes: list[str] = []
+    issues = capped_search(client, jql, fields=_LIST_FIELDS, notes=notes)
     today = _today()
 
     rows = []
@@ -1074,11 +1314,13 @@ def unassigned_issues(client: Any, projects: list[str] | None = None) -> dict:
             "duplicate work already owned through their parent."
         ),
     }
+    summary = {"issues": len(rows)}
+    mark_truncated(summary, meta, notes)
     return _make_report(
         "Unassigned issues",
         columns,
         rows,
-        summary={"issues": len(rows)},
+        summary=summary,
         meta=meta,
     )
 
@@ -1098,6 +1340,7 @@ def workload(
     project = _project_clause(projects)
     jqls: list[str] = []
     rows: list[dict] = []
+    notes: list[str] = []
 
     for username in usernames:
         jql = _order(
@@ -1109,7 +1352,7 @@ def workload(
             "duedate ASC",
         )
         jqls.append(jql)
-        issues = client.search(jql, fields=_LIST_FIELDS) or []
+        issues = capped_search(client, jql, fields=_LIST_FIELDS, notes=notes)
 
         remaining = 0
         in_progress = 0
@@ -1160,4 +1403,5 @@ def workload(
             "appear in no row; use unassigned_issues for those."
         ),
     }
+    mark_truncated(summary, meta, notes)
     return _make_report("Workload", columns, rows, summary=summary, meta=meta)

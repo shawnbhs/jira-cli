@@ -17,18 +17,31 @@ GreenHopper's ``sprint`` block carries localised *display* dates
 (``07/Sep/25 6:16 PM``); the ISO dates are read from
 ``/rest/agile/1.0/sprint/{id}`` when that answers, and
 ``meta["sprint_dates"]`` says which kind the report holds.
+
+GreenHopper issue entries on Jira Server carry ``typeId``/``statusId`` and no
+names; the names are read from ``/rest/api/2/issuetype`` and
+``/rest/api/2/status`` (at most one call each per report, only when an entry
+lacks ``typeName``/``statusName``).
+
+Summary semantics (see ``_summarize``): ``committed`` is the sprint's plan at
+start; ``completion_pct`` is the share of that plan finished, so work added
+mid-sprint can never push it past 100.  Added-and-finished work is reported
+separately as ``completed_added``; ``completed`` stays the total.
 """
 
 from __future__ import annotations
 
 from typing import Any
 
+from jira_cli import ids
 from jira_cli.errors import InputError, JiraError
 from jira_cli.fields import FieldMap
 from jira_cli.report import make_report
 
 GREENHOPPER_SPRINT_REPORT = "/rest/greenhopper/1.0/rapid/charts/sprintreport"
 GREENHOPPER_VELOCITY = "/rest/greenhopper/1.0/rapid/charts/velocity"
+ISSUE_TYPES = "/rest/api/2/issuetype"
+STATUSES = "/rest/api/2/status"
 
 #: Produced by the Greenhopper sprint report endpoint.
 METHOD_GREENHOPPER = "greenhopper"
@@ -75,10 +88,13 @@ def sprint_report(client, board_id: int, sprint_id: int | None = None) -> dict:
             sprint.
         JiraError: both data sources failed.
     """
+    board_id = ids.validate_int_id(board_id, what="board id")
     if sprint_id is not None:
-        resolved_id, discovery = sprint_id, DISCOVERY_EXPLICIT
+        resolved_id = ids.validate_int_id(sprint_id, what="sprint id")
+        discovery = DISCOVERY_EXPLICIT
     else:
-        resolved_id, discovery = _active_sprint_id(client, board_id)
+        found_id, discovery = _active_sprint_id(client, board_id)
+        resolved_id = ids.validate_int_id(found_id, what="active sprint id")
     try:
         report = _greenhopper_sprint_report(client, board_id, resolved_id)
     except JiraError as exc:
@@ -104,6 +120,7 @@ def velocity(client, board_id: int, last: int = 5) -> dict:
     Raises:
         InputError: ``last`` is not a positive integer.
     """
+    board_id = ids.validate_int_id(board_id, what="board id")
     if not isinstance(last, int) or isinstance(last, bool) or last < 1:
         raise InputError("last must be a positive integer")
     try:
@@ -157,6 +174,8 @@ def _greenhopper_sprint_report(client, board_id: int, sprint_id: int) -> dict:
     # A dict keyed by issue key on this server; tolerate a list just in case.
     added_keys = set(added_raw.keys() if isinstance(added_raw, dict) else added_raw or [])
 
+    types = _IdNames(client, ISSUE_TYPES)
+    statuses = _IdNames(client, STATUSES)
     rows: list[dict] = []
     for category, source_key in (
         (CATEGORY_COMPLETED, "completedIssues"),
@@ -165,7 +184,7 @@ def _greenhopper_sprint_report(client, board_id: int, sprint_id: int) -> dict:
     ):
         for raw in contents.get(source_key) or []:
             if isinstance(raw, dict):
-                rows.append(_greenhopper_row(raw, category, added_keys))
+                rows.append(_greenhopper_row(raw, category, added_keys, types, statuses))
 
     sprint, dates = _greenhopper_sprint_info(client, payload.get("sprint"), sprint_id)
     return make_report(
@@ -201,14 +220,53 @@ def _greenhopper_sprint_info(client, raw: Any, sprint_id: int) -> tuple[dict, st
     return merged, "iso"
 
 
-def _greenhopper_row(raw: dict, category: str, added_keys: set[str]) -> dict:
-    """Normalise one Greenhopper issue entry into a report row."""
+class _IdNames:
+    """Id -> name lookup over one Jira list endpoint, fetched lazily and once.
+
+    ``/rest/api/2/issuetype`` and ``/rest/api/2/status`` both answer a list of
+    ``{"id", "name", ...}``.  A failed lookup is not fatal to the report: the
+    raw id is shown instead, which still beats a blank column.
+    """
+
+    def __init__(self, client, path: str) -> None:
+        self._client = client
+        self._path = path
+        self._names: dict[str, str] | None = None
+
+    def name(self, raw_id: Any) -> str | None:
+        """The name for ``raw_id``, the id itself when unknown, ``None`` when absent."""
+        if raw_id in (None, ""):
+            return None
+        if self._names is None:
+            self._names = self._fetch()
+        return self._names.get(str(raw_id), str(raw_id))
+
+    def _fetch(self) -> dict[str, str]:
+        try:
+            payload = self._client.get(self._path)
+        except JiraError:
+            return {}
+        return {
+            str(item["id"]): item["name"]
+            for item in payload or []
+            if isinstance(item, dict) and item.get("id") is not None and item.get("name")
+        }
+
+
+def _greenhopper_row(
+    raw: dict, category: str, added_keys: set[str], types: _IdNames, statuses: _IdNames
+) -> dict:
+    """Normalise one Greenhopper issue entry into a report row.
+
+    Name fields win when the server sends them; Jira Server 10.3 sends only
+    ``typeId``/``statusId``, which are resolved through ``types``/``statuses``.
+    """
     key = raw.get("key")
     return {
         "key": key,
         "summary": raw.get("summary"),
-        "type": raw.get("typeName"),
-        "status": raw.get("statusName"),
+        "type": raw.get("typeName") or types.name(raw.get("typeId")),
+        "status": raw.get("statusName") or statuses.name(raw.get("statusId")),
         "assignee": raw.get("assignee") or raw.get("assigneeName"),
         "story_points": _stat_value(raw),
         "category": category,
@@ -333,37 +391,61 @@ def _sprint_title(sprint: dict, sprint_id: int) -> str:
 def _summarize(rows: list[dict]) -> dict:
     """Count and, where available, sum story points per sprint outcome.
 
-    ``committed`` is every issue in the sprint minus those added after it
-    started, so ``completion_pct`` measures the sprint against its own plan
-    rather than against work injected mid-flight.
+    Keys (``points_*`` mirror them in story points when any row is estimated):
+
+    * ``committed`` -- issues in the sprint when it started (every row not
+      added after start, including ones later removed): the plan.
+    * ``completed`` -- every completed issue, planned or not (the total).
+    * ``completed_committed`` -- completed issues that were part of the plan.
+    * ``completed_added`` -- completed issues added after the sprint started.
+    * ``not_completed`` / ``removed`` / ``added_after_start`` -- plain counts.
+    * ``scope`` -- issues in the sprint now (completed + not completed).
+    * ``completion_pct`` -- ``completed_committed / committed``: how much of
+      the plan was finished.  Added work cannot inflate it, so it never
+      exceeds 100.
+    * ``scope_completion_pct`` -- ``completed / scope``: how much of
+      everything now in the sprint is finished.
     """
     by_category = {
         category: [r for r in rows if r["category"] == category]
         for category in (CATEGORY_COMPLETED, CATEGORY_NOT_COMPLETED, CATEGORY_REMOVED)
     }
+    completed = by_category[CATEGORY_COMPLETED]
+    committed = [r for r in rows if not r["added_after_start"]]
     added = [r for r in rows if r["added_after_start"]]
-    committed = len(rows) - len(added)
-    completed = len(by_category[CATEGORY_COMPLETED])
+    completed_committed = [r for r in completed if not r["added_after_start"]]
+    completed_added = [r for r in completed if r["added_after_start"]]
+    scope = completed + by_category[CATEGORY_NOT_COMPLETED]
 
     summary = {
-        "committed": committed,
-        "completed": completed,
+        "committed": len(committed),
+        "completed": len(completed),
+        "completed_committed": len(completed_committed),
+        "completed_added": len(completed_added),
         "not_completed": len(by_category[CATEGORY_NOT_COMPLETED]),
         "removed": len(by_category[CATEGORY_REMOVED]),
         "added_after_start": len(added),
-        "completion_pct": _pct(completed, committed),
+        "scope": len(scope),
+        "completion_pct": _pct(len(completed_committed), len(committed)),
+        "scope_completion_pct": _pct(len(completed), len(scope)),
     }
 
     if any(r["story_points"] is not None for r in rows):
-        points_committed = _sum_points(r for r in rows if not r["added_after_start"])
-        points_completed = _sum_points(by_category[CATEGORY_COMPLETED])
+        points_committed = _sum_points(committed)
+        points_completed_committed = _sum_points(completed_committed)
+        points_completed = _sum_points(completed)
+        points_scope = _sum_points(scope)
         summary.update(
             points_committed=points_committed,
             points_completed=points_completed,
+            points_completed_committed=points_completed_committed,
+            points_completed_added=_sum_points(completed_added),
             points_not_completed=_sum_points(by_category[CATEGORY_NOT_COMPLETED]),
             points_removed=_sum_points(by_category[CATEGORY_REMOVED]),
             points_added_after_start=_sum_points(added),
-            points_completion_pct=_pct(points_completed, points_committed),
+            points_scope=points_scope,
+            points_completion_pct=_pct(points_completed_committed, points_committed),
+            points_scope_completion_pct=_pct(points_completed, points_scope),
         )
     return summary
 
@@ -374,10 +456,10 @@ def _sum_points(rows) -> float:
 
 
 def _pct(part: float, whole: float) -> float:
-    """Percentage of ``part`` in ``whole``, 0.0 when ``whole`` is zero."""
+    """Percentage of ``part`` in ``whole``: 0.0 when ``whole`` is zero, capped at 100."""
     if not whole:
         return 0.0
-    return round(100.0 * part / whole, 1)
+    return round(min(100.0, 100.0 * part / whole), 1)
 
 
 # --------------------------------------------------------------------------- #
@@ -425,7 +507,7 @@ def _agile_velocity(client, board_id: int, last: int, *, fallback_reason: str) -
     )
     rows = []
     for sprint in sprints[-last:]:
-        sprint_id = sprint.get("id")
+        sprint_id = ids.validate_int_id(sprint.get("id"), what="sprint id")
         issues = client.paginate(
             f"/rest/agile/1.0/sprint/{sprint_id}/issue",
             {"fields": "status"},

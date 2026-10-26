@@ -585,10 +585,10 @@ def test_config_dir_does_not_create_the_directory(tmp_path):
 # --------------------------------------------------------------------------- #
 
 
-def test_describe_settings_hides_the_secret_but_reports_its_length():
+def test_describe_settings_hides_the_secret_and_its_length():
     settings = load_settings({"JIRA_BASE_URL": BASE, "JIRA_PAT": PAT})
     described = describe_settings(settings)
-    assert described["secret"] == f"set ({len(PAT)} chars)"
+    assert described["secret"] == "set"
     assert PAT not in repr(described)
 
 

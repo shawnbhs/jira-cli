@@ -1107,6 +1107,38 @@ def test_update_fields_clears_labels_with_an_empty_list():
     }
 
 
+def test_update_fields_splits_comma_separated_labels_instead_of_iterating_characters():
+    client = FakeClient({("PUT", f"{API}/issue/PROJ-42"): None})
+    issues.update_fields(client, "PROJ-42", {"labels": "urgent,backend"})
+
+    assert client.payload_for("PUT", f"{API}/issue/PROJ-42") == {
+        "fields": {"labels": ["urgent", "backend"]}
+    }
+
+
+def test_update_fields_splits_comma_separated_components_and_fix_versions():
+    client = FakeClient({("PUT", f"{API}/issue/PROJ-42"): None})
+    issues.update_fields(client, "PROJ-42", {"components": "Core, API", "fix_versions": "2.0"})
+
+    assert client.payload_for("PUT", f"{API}/issue/PROJ-42") == {
+        "fields": {"components": [{"name": "Core"}, {"name": "API"}], "fixVersions": [{"name": "2.0"}]}
+    }
+
+
+def test_update_fields_rejects_a_non_string_label_list():
+    client = FakeClient()
+
+    with pytest.raises(InputError, match="labels"):
+        issues.update_fields(client, "PROJ-42", {"labels": 5})
+
+
+def test_update_fields_rejects_an_overlong_summary():
+    client = FakeClient()
+
+    with pytest.raises(InputError, match="255"):
+        issues.update_fields(client, "PROJ-42", {"summary": "s" * 256})
+
+
 def test_update_fields_rejects_an_unknown_key():
     client = FakeClient()
 

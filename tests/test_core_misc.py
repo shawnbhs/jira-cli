@@ -52,7 +52,7 @@ def clean_registered_secrets():
 
 
 def test_version_is_the_contract_version():
-    assert jira_cli.__version__ == "2.0.0"
+    assert jira_cli.__version__ == "2.1.0"
 
 
 # --------------------------------------------------------------------------- #

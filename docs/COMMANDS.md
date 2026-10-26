@@ -168,6 +168,36 @@ Statuses used by the project.
 jira projects statuses PROJ
 ```
 
+### `jira projects members PROJECT [--role ROLE]`
+
+Lists the project's roles and the users and groups in each one. On Jira
+Server a person is "in a project" through a project role.
+
+```bash
+jira projects members PROJ
+jira projects members PROJ --role Developers
+```
+
+### `jira projects add-member PROJECT USER [USER ...] [--role ROLE] [--groups G1,G2]`
+
+Write. Adds users (and optionally groups) to a project role; the role
+defaults to `Developers`. People already in the role are skipped and
+reported. The role is read back after the change.
+
+```bash
+jira projects add-member PROJ alice bob
+jira projects add-member PROJ --role Administrators --groups dev-leads
+```
+
+### `jira projects remove-member PROJECT USER [USER ...] [--role ROLE] [--groups G1,G2]`
+
+Write. Removes users or groups from a project role. Non-members are
+skipped. Their issues, comments and worklogs are not touched.
+
+```bash
+jira projects remove-member PROJ carol
+```
+
 ## Boards and sprints
 
 ### `jira boards list [--project KEY] [--type kanban|scrum]`
@@ -197,6 +227,37 @@ Issues on a board, optionally narrowed by JQL. Default limit 200.
 
 ```bash
 jira boards issues 12 --jql 'assignee = alice'
+```
+
+### `jira boards overview [--project KEY] [BOARD_ID] [--column NAME] [--no-issues] [--limit N]`
+
+How many issues sit in each column, and which ones. Read-only.
+
+- Without `BOARD_ID`: one numbered row per board (narrow it with
+  `--project`) with its type (scrum boards show the active sprint), project,
+  total, backlog and a compact per-column count strip. Counting never
+  fetches issues.
+- With `BOARD_ID`: a header (name, type, project, total, the active sprint
+  for scrum, every column's count), then every column's issues — key, title,
+  assignee, reporter. `--column NAME` (case-insensitive) shows only that
+  column; an unknown name is an input error that lists the board's columns.
+  `--no-issues` stops after the header. `--limit` caps the issues listed per
+  column (default 300); a capped column says `(showing first N of M)`.
+
+Scrum columns count the active sprint only (Backlog is shown separately);
+kanban columns count every board issue. Issues in a status no column maps are
+shown as `Unmapped`. With `--json`, the listing prints the summary rows
+(`id`, `name`, `type`, `project`, `total`, `backlog`, `columns`
+`[{name, count}]`, `sprint`, `error`) and a single board prints the raw
+overview (`board`, `sprints`, `columns` `[{name, statuses, count, issues}]`,
+`backlog`, `unmapped`, `total`). A board that cannot be read shows its error
+in the listing instead of stopping it.
+
+```bash
+jira boards overview --project PROJ
+jira boards overview 12
+jira boards overview 12 --column 'in progress'
+jira --json boards overview 12 > board.json
 ```
 
 ### `jira sprints BOARD_ID [--state STATE]`
@@ -413,6 +474,28 @@ assignment.
 ```bash
 jira users assignable PROJ
 jira users assignable PROJ ali
+```
+
+### `jira people [--project KEY ...] [--find TEXT] [--no-groups]`
+
+The people directory: everyone who holds a role in the projects read, as a
+numbered table — name, username, projects and roles, and admin (`Jira admin`,
+`admin: PROJ` for a project administrator, `?` when the admin groups could
+not be read). Members of a group that holds a role are listed too, with the
+role marked `(via group G)`; `--no-groups` skips that expansion. Read-only.
+
+`--project` is repeatable and takes comma lists (`--project PROJ,OPS`); keys
+are upper-cased; default is every visible project (a few seconds on a large
+server). `--find` keeps only people whose username or display name contains
+the text (case-insensitive). Groups that could not be expanded and projects
+that could not be read are printed as `note:` lines on stderr, so stdout
+stays the table. With `--json` the whole report is printed: `people` (after
+`--find`), `projects`, `unexpanded_groups`, `errors`.
+
+```bash
+jira people --project PROJ
+jira people --find alice
+jira --json people --project PROJ --no-groups
 ```
 
 ## Teams

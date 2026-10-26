@@ -232,7 +232,9 @@ def test_non_json_error_body_still_produces_a_message():
     client, _ = make_client(FakeResponse(500, None, text="<html>boom</html>"))
     with pytest.raises(JiraError) as caught:
         client.get("/rest/api/2/myself")
-    assert "boom" in caught.value.message
+    # The body is sized, never quoted: an HTML page may carry a stack trace.
+    assert caught.value.message == "Jira returned HTTP 500 (non-JSON response, 17 bytes)"
+    assert "boom" not in str(caught.value)
 
 
 def test_204_returns_none():

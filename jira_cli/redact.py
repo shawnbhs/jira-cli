@@ -20,7 +20,7 @@ import base64
 import json
 import re
 from typing import Any
-from urllib.parse import quote, quote_plus
+from urllib.parse import quote, quote_plus, urlsplit
 
 MASK = "***"
 """Replacement text for every redacted value."""
@@ -192,6 +192,32 @@ def redact(text: Any) -> str:
     return result
 
 
+def request_target(url: Any) -> str:
+    """Return the path of ``url`` only, safe to put in an error message.
+
+    Scheme, userinfo, host and port are dropped (a host name may be internal
+    and is not needed to understand the failure), and a query string is
+    replaced by ``?...`` because its values (JQL, ids, tokens) are caller
+    data, not diagnostics. The fragment is dropped. What remains is redacted.
+
+    ``https://jira.example.com/jira/rest/api/2/search?jql=x`` becomes
+    ``/jira/rest/api/2/search?...``.
+    """
+    if url is None:
+        return ""
+    text = str(url).strip()
+    if not text:
+        return ""
+    try:
+        parts = urlsplit(text)
+    except ValueError:
+        return MASK
+    path = parts.path or ("/" if parts.netloc else "")
+    if parts.query:
+        path += "?..."
+    return redact(path)
+
+
 __all__ = [
     "MASK",
     "clear_secrets",
@@ -199,4 +225,5 @@ __all__ = [
     "register_basic",
     "register_secret",
     "registered_secrets",
+    "request_target",
 ]

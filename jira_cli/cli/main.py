@@ -44,10 +44,13 @@ from ..errors import AuthError, ConfigError, InputError, JiraError
 from ..fields import FieldMap
 from ..redact import redact
 from ..services import (
+    board_overview,
     boards,
+    directory,
     export,
     filters,
     issues,
+    members,
     people,
     plan,
     projects,
@@ -56,7 +59,7 @@ from ..services import (
     worklog,
 )
 from ..textsafe import terminal_safe, terminal_safe_line
-from . import output
+from . import board_view, output, people_picker
 
 #: Exit codes, keyed by the error class they belong to.
 EXIT_OK = 0
@@ -274,7 +277,7 @@ def cmd_me(ctx: Context) -> int:
 
 
 def cmd_config_show(ctx: Context) -> int:
-    described = config_module.describe_settings(ctx.settings)
+    described = config_module.describe_settings(ctx.settings, local=True)
     text = "\n".join(f"  {key:<18} {value}" for key, value in sorted(described.items()))
     ctx.emit(described, text)
     return EXIT_OK
@@ -503,6 +506,65 @@ def cmd_projects_statuses(ctx: Context) -> int:
     return EXIT_OK
 
 
+def cmd_projects_members(ctx: Context) -> int:
+    args = ctx.args
+    if args.role:
+        roles = [members.get_role(ctx.client, args.project, args.role)]
+    else:
+        roles = members.list_roles(ctx.client, args.project)
+    rows = [
+        {
+            "role": role.get("name"),
+            "users": ", ".join(str(u.get("username")) for u in role.get("users") or []) or "-",
+            "groups": ", ".join(role.get("groups") or []) or "-",
+        }
+        for role in roles
+    ]
+    ctx.emit_table(("role", "users", "groups"), rows)
+    return EXIT_OK
+
+
+def _member_lines(args: Any) -> list[str]:
+    lines = [f"project {args.project}", f"role {args.role}"]
+    if args.users:
+        lines.append(f"users {', '.join(args.users)}")
+    if args.groups:
+        lines.append(f"groups {args.groups}")
+    return lines
+
+
+def cmd_projects_add_member(ctx: Context) -> int:
+    args = ctx.args
+    if not ctx.confirm("Add to project role", _member_lines(args)):
+        return EXIT_CANCELLED
+    result = members.add_members(
+        ctx.client, args.project, args.role, users=args.users, groups=args.groups
+    )
+    added = result["added_users"] + result["added_groups"]
+    skipped = result["already_members"]
+    text = f"added {', '.join(added) or 'nobody'} to {result['project']} {result['role']}"
+    if skipped:
+        text += f"; already members: {', '.join(skipped)}"
+    ctx.emit(result, text)
+    return EXIT_OK
+
+
+def cmd_projects_remove_member(ctx: Context) -> int:
+    args = ctx.args
+    if not ctx.confirm("Remove from project role", _member_lines(args)):
+        return EXIT_CANCELLED
+    result = members.remove_members(
+        ctx.client, args.project, args.role, users=args.users, groups=args.groups
+    )
+    removed = result["removed_users"] + result["removed_groups"]
+    skipped = result["not_members"]
+    text = f"removed {', '.join(removed) or 'nobody'} from {result['project']} {result['role']}"
+    if skipped:
+        text += f"; not members: {', '.join(skipped)}"
+    ctx.emit(result, text)
+    return EXIT_OK
+
+
 def cmd_boards_list(ctx: Context) -> int:
     rows = boards.list_boards(ctx.client, ctx.args.project, ctx.args.type)
     ctx.emit_table(("id", "name", "type", "project"), rows)
@@ -535,6 +597,42 @@ def cmd_boards_ensure(ctx: Context) -> int:
 def cmd_boards_issues(ctx: Context) -> int:
     found = boards.board_issues(ctx.client, ctx.args.board_id, ctx.args.jql, ctx.args.limit)
     ctx.emit_issues(found)
+    return EXIT_OK
+
+
+def _column_choice(overview: dict, wanted: str | None) -> int:
+    """``render_column`` index for ``--column NAME`` (case-insensitive), else All columns."""
+    labels = board_view.column_choices(overview)
+    if wanted is None:
+        return len(labels) - 1
+    # Labels read "Name (count)"; the last one is the "All columns" entry.
+    names = [label.rsplit(" (", 1)[0] for label in labels[:-1]]
+    needle = wanted.strip().casefold()
+    for index, name in enumerate(names):
+        if name.casefold() == needle:
+            return index
+    raise InputError(f"board has no column {wanted!r}; columns: {', '.join(names) or '-'}")
+
+
+def cmd_boards_overview(ctx: Context) -> int:
+    """Count-only summary of every board, or one board column by column."""
+    args = ctx.args
+    if args.board_id is None:
+        if args.column:
+            raise InputError("--column needs a BOARD_ID")
+        rows = board_overview.list_board_summaries(ctx.client, args.project)
+        ctx.emit(rows, board_view.render_board_summaries(rows))
+        return EXIT_OK
+    if args.column and args.no_issues:
+        raise InputError("--column lists issues; drop --no-issues")
+    overview = board_overview.board_overview(
+        ctx.client, args.board_id, include_issues=not args.no_issues, limit=args.limit
+    )
+    text = board_view.render_board_header(overview)
+    if not args.no_issues:
+        choice = _column_choice(overview, args.column)
+        text += "\n\n" + board_view.render_column(overview, choice)
+    ctx.emit(overview, text)
     return EXIT_OK
 
 
@@ -810,6 +908,38 @@ def cmd_users_search(ctx: Context) -> int:
 def cmd_users_assignable(ctx: Context) -> int:
     rows = people.assignable_users(ctx.client, ctx.args.project.upper(), ctx.args.query or "")
     ctx.emit_table(("username", "display_name", "email", "active"), rows)
+    return EXIT_OK
+
+
+def _project_keys(values: Sequence[str] | None) -> list[str] | None:
+    """Repeatable ``--project`` values (comma lists allowed) -> keys; ``None`` means all."""
+    keys = [key.upper() for value in values or [] for key in _split(value)]
+    return keys or None
+
+
+def _print_directory_notes(report: dict) -> None:
+    """What the directory could not read, as notes on stderr (never on stdout)."""
+    for group in report.get("unexpanded_groups") or []:
+        line = f"note: group {group.get('group')} not expanded: {group.get('reason')}"
+        print(terminal_safe_line(line), file=sys.stderr)
+    for error in report.get("errors") or []:
+        line = f"note: project {error.get('project')} skipped: {error.get('error')}"
+        print(terminal_safe_line(line), file=sys.stderr)
+    for note in report.get("notes") or []:
+        print(terminal_safe_line(f"note: {note}"), file=sys.stderr)
+
+
+def cmd_people(ctx: Context) -> int:
+    """Who holds which role in which project, and who administers what."""
+    args = ctx.args
+    keys = _project_keys(args.project)
+    report = directory.build_directory_report(ctx.client, keys, expand_groups=not args.no_groups)
+    found = report["people"]
+    if args.find:
+        found = directory.find_people(found, args.find)
+    _print_directory_notes(report)
+    focus = keys[0] if keys and len(keys) == 1 else None
+    ctx.emit({**report, "people": found}, people_picker.render_people(found, focus_project=focus))
     return EXIT_OK
 
 
@@ -1143,10 +1273,14 @@ HANDLERS: dict[str, Any] = {
     "projects.types": cmd_projects_types,
     "projects.priorities": cmd_projects_priorities,
     "projects.statuses": cmd_projects_statuses,
+    "projects.members": cmd_projects_members,
+    "projects.add-member": cmd_projects_add_member,
+    "projects.remove-member": cmd_projects_remove_member,
     "boards.list": cmd_boards_list,
     "boards.show": cmd_boards_show,
     "boards.ensure": cmd_boards_ensure,
     "boards.issues": cmd_boards_issues,
+    "boards.overview": cmd_boards_overview,
     "sprints": cmd_sprints,
     "sprint.active": cmd_sprint_active,
     "sprint.create": cmd_sprint_create,
@@ -1170,6 +1304,7 @@ HANDLERS: dict[str, Any] = {
     "mine": cmd_mine,
     "users.search": cmd_users_search,
     "users.assignable": cmd_users_assignable,
+    "people": cmd_people,
     "team.list": cmd_team_list,
     "team.show": cmd_team_show,
     "team.set": cmd_team_set,
@@ -1322,6 +1457,20 @@ def _add_project_parsers(sub: Any) -> None:
     statuses = project_sub.add_parser("statuses", help="list a project's statuses")
     statuses.add_argument("project")
 
+    roster = project_sub.add_parser("members", help="list project roles and their members")
+    roster.add_argument("project")
+    roster.add_argument("--role", help="only this role (name or id)")
+
+    for verb, helptext in (
+        ("add-member", "add users/groups to a project role"),
+        ("remove-member", "remove users/groups from a project role"),
+    ):
+        change = project_sub.add_parser(verb, help=helptext)
+        change.add_argument("project")
+        change.add_argument("users", nargs="*", metavar="USER")
+        change.add_argument("--role", default="Developers", help="role name or id (default Developers)")
+        change.add_argument("--groups", help="comma-separated group names")
+
 
 def _add_board_parsers(sub: Any) -> None:
     parser = sub.add_parser("boards", help="agile boards")
@@ -1343,6 +1492,19 @@ def _add_board_parsers(sub: Any) -> None:
     board_issues.add_argument("board_id", type=int, metavar="BOARD_ID")
     board_issues.add_argument("--jql")
     board_issues.add_argument("--limit", type=int, default=200)
+
+    overview = board_sub.add_parser(
+        "overview", help="issue counts per column for every board, or one board's columns"
+    )
+    overview.add_argument("board_id", type=int, nargs="?", metavar="BOARD_ID")
+    overview.add_argument("--project", help="only boards of this project (listing only)")
+    overview.add_argument("--column", help="only this column (name, case-insensitive)")
+    overview.add_argument(
+        "--no-issues", dest="no_issues", action="store_true", help="counts only, no issue lists"
+    )
+    overview.add_argument(
+        "--limit", type=int, default=300, help="most issues listed per column (default 300)"
+    )
 
     sprints = sub.add_parser("sprints", help="list the sprints of a board")
     sprints.add_argument("board_id", type=int, metavar="BOARD_ID")
@@ -1380,6 +1542,17 @@ def _add_people_parsers(sub: Any) -> None:
     assignable = users_sub.add_parser("assignable", help="users assignable in a project")
     assignable.add_argument("project")
     assignable.add_argument("query", nargs="?")
+
+    directory_parser = sub.add_parser(
+        "people", help="people directory: projects, roles and admins (no usernames to remember)"
+    )
+    directory_parser.add_argument(
+        "--project", action="append", metavar="KEY", help="repeatable or comma separated; default all"
+    )
+    directory_parser.add_argument("--find", metavar="TEXT", help="only names/usernames containing TEXT")
+    directory_parser.add_argument(
+        "--no-groups", dest="no_groups", action="store_true", help="do not expand role groups"
+    )
 
     team = sub.add_parser("team", help="local teams (members, projects, boards)")
     team_sub = team.add_subparsers(dest="subcommand")

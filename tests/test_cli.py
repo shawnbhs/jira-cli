@@ -22,6 +22,7 @@ import pytest
 
 from jira_cli.cli import main as cli
 from jira_cli.cli import output
+from jira_cli.services import directory as real_directory
 
 
 def _module(name: str, **attrs) -> types.ModuleType:
@@ -100,6 +101,8 @@ class Recorder:
         return matches[0]
 
 
+ROLE = {"name": "Developers", "users": [], "groups": []}
+ROLE_CHANGE = {"project": "PROJ", "role": "Developers"}
 PROJECT_ROW = {"key": "PROJ", "name": "Project", "lead": "alice", "type": "software"}
 BOARD = {"id": 12, "name": "PROJ board", "type": "scrum"}
 SPRINT = {"id": 5, "name": "Sprint 5", "state": "active"}
@@ -205,6 +208,23 @@ def env(monkeypatch):
             link_issues=rec.fn("link_issues", dict),
             list_link_types=rec.fn("list_link_types", lambda: [{"name": "Blocks"}]),
             delete_issue=rec.fn("delete_issue", dict),
+        ),
+    )
+    monkeypatch.setattr(
+        cli,
+        "members",
+        _module(
+            "members",
+            list_roles=rec.fn("list_roles", lambda: [dict(ROLE, users=[{"username": "alice"}])]),
+            get_role=rec.fn("get_role", lambda: dict(ROLE)),
+            add_members=rec.fn(
+                "add_members",
+                lambda: {**ROLE_CHANGE, "added_users": ["bob"], "added_groups": [], "already_members": []},
+            ),
+            remove_members=rec.fn(
+                "remove_members",
+                lambda: {**ROLE_CHANGE, "removed_users": ["bob"], "removed_groups": [], "not_members": []},
+            ),
         ),
     )
     monkeypatch.setattr(
@@ -373,10 +393,15 @@ EVERY_COMMAND: list[tuple[str, list[str]]] = [
     ("projects.types", ["projects", "types", "PROJ"]),
     ("projects.priorities", ["projects", "priorities"]),
     ("projects.statuses", ["projects", "statuses", "PROJ"]),
+    ("projects.members", ["projects", "members", "PROJ"]),
+    ("projects.add-member", ["projects", "add-member", "PROJ", "bob"]),
+    ("projects.remove-member", ["projects", "remove-member", "PROJ", "bob", "--role", "Developers"]),
     ("boards.list", ["boards", "list", "--project", "PROJ"]),
     ("boards.show", ["boards", "show", "12"]),
     ("boards.ensure", ["boards", "ensure", "PROJ", "--type", "scrum"]),
     ("boards.issues", ["boards", "issues", "12"]),
+    ("boards.overview", ["boards", "overview", "12", "--column", "To Do"]),
+    ("people", ["people", "--project", "PROJ"]),
     ("sprints", ["sprints", "12", "--state", "active"]),
     ("sprint.active", ["sprint", "active", "12"]),
     ("sprint.create", ["sprint", "create", "12", "Sprint 6", "--goal", "ship"]),
@@ -1344,3 +1369,267 @@ def test_confirm_only_accepts_an_explicit_yes(monkeypatch, answer, expected):
 def test_confirm_treats_an_interrupt_as_no(monkeypatch):
     monkeypatch.setattr("builtins.input", _raise(KeyboardInterrupt()))
     assert output.confirm("Proceed?", False) is False
+
+
+def test_projects_add_member_passes_users_role_and_groups(env):
+    argv = yes("projects", "add-member", "PROJ", "bob", "carol", "--role", "Admins", "--groups", "devs")
+    assert cli.main(argv) == 0
+
+    _name, args, kwargs = env.one("add_members")
+    assert args[1:] == ("PROJ", "Admins")
+    assert kwargs == {"users": ["bob", "carol"], "groups": "devs"}
+
+
+def test_projects_remove_member_defaults_to_the_developers_role(env):
+    assert cli.main(yes("projects", "remove-member", "PROJ", "bob")) == 0
+
+    _name, args, _kwargs = env.one("remove_members")
+    assert args[2] == "Developers"
+
+
+def test_projects_remove_member_declined_changes_nothing(env, monkeypatch):
+    monkeypatch.setattr(cli.output, "confirm", lambda prompt, assume_yes: False)
+
+    assert cli.main(["projects", "remove-member", "PROJ", "bob"]) == cli.EXIT_CANCELLED
+    assert "remove_members" not in env.names()
+
+
+# ======================================================= people and overview
+
+PERSON_ALICE = {
+    "username": "alice",
+    "display_name": "Alice Example",
+    "active": True,
+    "projects": [{"key": "PROJ", "roles": ["Administrators"]}],
+    "project_admin": ["PROJ"],
+    "jira_admin": False,
+}
+PERSON_BOB = {
+    "username": "bob",
+    "display_name": "Bob Example",
+    "active": True,
+    "projects": [{"key": "PROJ", "roles": ["Developers (via group devs)"]}],
+    "project_admin": [],
+    "jira_admin": False,
+}
+
+
+def make_directory_report() -> dict:
+    return {
+        "people": [dict(PERSON_ALICE), dict(PERSON_BOB)],
+        "projects": ["PROJ"],
+        "unexpanded_groups": [{"group": "contractors", "reason": "HTTP 403"}],
+        "errors": [{"project": "OPS", "error": "HTTP 403 forbidden"}],
+    }
+
+
+def overview_row(key: str, summary: str, status: str) -> dict:
+    return {
+        "key": key,
+        "summary": summary,
+        "status": status,
+        "type": "Task",
+        "priority": "Medium",
+        "assignee": "Alice Example",
+        "assignee_username": "alice",
+        "reporter": "Bob Example",
+        "reporter_username": "bob",
+        "updated": "2026-10-20T10:00:00.000+0000",
+    }
+
+
+def make_overview() -> dict:
+    return {
+        "board": {"id": 12, "name": "PROJ board", "type": "kanban", "project": "PROJ"},
+        "sprints": [],
+        "columns": [
+            {
+                "name": "To Do",
+                "statuses": ["To Do"],
+                "count": 1,
+                "issues": [overview_row("PROJ-1", "Fix the login screen", "To Do")],
+            },
+            {
+                "name": "In Progress",
+                "statuses": ["In Progress"],
+                "count": 1,
+                "issues": [overview_row("PROJ-2", "Write the import docs", "In Progress")],
+            },
+        ],
+        "backlog": None,
+        "unmapped": {"count": 0, "issues": []},
+        "total": 2,
+    }
+
+
+SUMMARY_ROW = {
+    "id": 12,
+    "name": "PROJ board",
+    "type": "kanban",
+    "project": "PROJ",
+    "total": 2,
+    "backlog": None,
+    "columns": [{"name": "To Do", "count": 1}, {"name": "In Progress", "count": 1}],
+    "sprint": None,
+    "error": None,
+}
+
+
+@pytest.fixture
+def directory_env(env, monkeypatch):
+    """``env`` plus fake directory and board-overview services (renderers stay real)."""
+    monkeypatch.setattr(
+        cli,
+        "directory",
+        _module(
+            "directory",
+            build_directory_report=env.fn("build_directory_report", make_directory_report),
+            find_people=real_directory.find_people,
+        ),
+    )
+    monkeypatch.setattr(
+        cli,
+        "board_overview",
+        _module(
+            "board_overview",
+            list_board_summaries=env.fn("list_board_summaries", lambda: [dict(SUMMARY_ROW)]),
+            board_overview=env.fn("board_overview", make_overview),
+        ),
+    )
+    return env
+
+
+def test_people_lists_everyone_in_a_numbered_table(capsys, directory_env):
+    assert cli.main(["people"]) == 0
+
+    out = capsys.readouterr().out
+    assert "Projects / roles" in out
+    assert "Alice Example" in out
+    assert "bob" in out
+    assert "admin: PROJ" in out
+
+
+def test_people_without_project_reads_every_project_and_expands_groups(directory_env):
+    assert cli.main(["people"]) == 0
+
+    _name, args, kwargs = directory_env.one("build_directory_report")
+    assert args[1] is None
+    assert kwargs == {"expand_groups": True}
+
+
+def test_people_project_flag_is_repeatable_comma_separated_and_upper_cased(directory_env):
+    assert cli.main(["people", "--project", "proj", "--project", "ops,web"]) == 0
+
+    _name, args, _kwargs = directory_env.one("build_directory_report")
+    assert args[1] == ["PROJ", "OPS", "WEB"]
+
+
+def test_people_no_groups_turns_group_expansion_off(directory_env):
+    assert cli.main(["people", "--no-groups"]) == 0
+
+    _name, _args, kwargs = directory_env.one("build_directory_report")
+    assert kwargs == {"expand_groups": False}
+
+
+def test_people_find_keeps_only_matching_people(capsys, directory_env):
+    assert cli.main(["people", "--find", "BOB"]) == 0
+
+    out = capsys.readouterr().out
+    assert "Bob Example" in out
+    assert "Alice Example" not in out
+
+
+def test_people_reports_unexpanded_groups_and_errors_on_stderr(capsys, directory_env):
+    assert cli.main(["people"]) == 0
+
+    captured = capsys.readouterr()
+    assert "note: group contractors not expanded: HTTP 403" in captured.err
+    assert "note: project OPS skipped: HTTP 403 forbidden" in captured.err
+    assert "contractors" not in captured.out
+
+
+def test_people_json_prints_the_filtered_report_only(capsys, directory_env):
+    assert cli.main(["--json", "people", "--find", "alice"]) == 0
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert [person["username"] for person in payload["people"]] == ["alice"]
+    assert payload["errors"] == [{"project": "OPS", "error": "HTTP 403 forbidden"}]
+    assert "note: project OPS skipped" in captured.err
+
+
+def test_boards_overview_without_board_lists_board_summaries(capsys, directory_env):
+    assert cli.main(["boards", "overview", "--project", "PROJ"]) == 0
+
+    _name, args, _kwargs = directory_env.one("list_board_summaries")
+    assert args[1] == "PROJ"
+    out = capsys.readouterr().out
+    assert "PROJ board" in out
+    assert "In Progress 1" in out
+    assert "board_overview" not in directory_env.names()
+
+
+def test_boards_overview_json_without_board_prints_the_summary_rows(capsys, directory_env):
+    assert cli.main(["--json", "boards", "overview"]) == 0
+
+    assert json.loads(capsys.readouterr().out) == [SUMMARY_ROW]
+
+
+def test_boards_overview_of_one_board_shows_the_header_and_every_column(capsys, directory_env):
+    assert cli.main(["boards", "overview", "12"]) == 0
+
+    _name, args, kwargs = directory_env.one("board_overview")
+    assert args[1] == 12
+    assert kwargs == {"include_issues": True, "limit": 300}
+    out = capsys.readouterr().out
+    assert "PROJ board" in out
+    assert "To Do — 1 issue" in out
+    assert "In Progress — 1 issue" in out
+    assert "PROJ-1" in out and "PROJ-2" in out
+
+
+def test_boards_overview_column_matches_case_insensitively_and_shows_only_it(capsys, directory_env):
+    assert cli.main(["boards", "overview", "12", "--column", "in progress"]) == 0
+
+    out = capsys.readouterr().out
+    assert "In Progress — 1 issue" in out
+    assert "PROJ-2" in out
+    assert "PROJ-1" not in out
+
+
+def test_boards_overview_unknown_column_is_an_input_error_naming_the_columns(capsys, directory_env):
+    assert cli.main(["boards", "overview", "12", "--column", "Review"]) == 1
+
+    err = capsys.readouterr().err
+    assert "no column 'Review'" in err
+    assert "To Do, In Progress" in err
+
+
+def test_boards_overview_no_issues_asks_for_counts_only(capsys, directory_env):
+    assert cli.main(["boards", "overview", "12", "--no-issues", "--limit", "5"]) == 0
+
+    _name, _args, kwargs = directory_env.one("board_overview")
+    assert kwargs == {"include_issues": False, "limit": 5}
+    out = capsys.readouterr().out
+    assert "To Do 1" in out
+    assert "To Do — " not in out
+
+
+def test_boards_overview_json_of_one_board_prints_the_raw_overview(capsys, directory_env):
+    assert cli.main(["--json", "boards", "overview", "12"]) == 0
+
+    assert json.loads(capsys.readouterr().out) == make_overview()
+
+
+def test_boards_overview_column_without_a_board_is_an_input_error(capsys, directory_env):
+    assert cli.main(["boards", "overview", "--column", "To Do"]) == 1
+
+    assert "--column needs a BOARD_ID" in capsys.readouterr().err
+    assert "list_board_summaries" not in directory_env.names()
+
+
+def test_boards_overview_column_with_no_issues_is_an_input_error(capsys, directory_env):
+    assert cli.main(["boards", "overview", "12", "--column", "To Do", "--no-issues"]) == 1
+
+    assert "drop --no-issues" in capsys.readouterr().err
+    assert "board_overview" not in directory_env.names()

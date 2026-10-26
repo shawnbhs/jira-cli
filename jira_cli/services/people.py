@@ -353,7 +353,9 @@ def resolve_people(spec: str | list[str], teams: dict) -> list[str]:
     * ``"alice,bob"`` — literal usernames
     * ``["@backend", "carol"]`` — a list of any of the above
 
-    Order is preserved and duplicates are dropped.
+    Order is preserved and duplicates are dropped. Jira usernames are
+    case-insensitive, so ``"alice,ALICE"`` is one person; the first spelling seen
+    is the one returned.
 
     Raises:
         InputError: If the spec is empty, of the wrong type, or names an unknown
@@ -364,13 +366,16 @@ def resolve_people(spec: str | list[str], teams: dict) -> list[str]:
     if not tokens:
         raise InputError("no people specified")
     people: list[str] = []
+    seen: set[str] = set()
     for token in tokens:
         if token.lower().startswith("team:") or token.startswith("@"):
             candidates = _expand_team(token, teams)
         else:
             candidates = [token]
         for username in candidates:
-            if username not in people:
+            folded = username.casefold()
+            if folded not in seen:
+                seen.add(folded)
                 people.append(username)
     if not people:
         raise InputError("people specification resolved to nobody")

@@ -327,6 +327,14 @@ def test_resolve_people_is_case_insensitive_on_the_team_keyword():
     assert people.resolve_people("TEAM:backend", TEAMS) == ["alice", "bob"]
 
 
+def test_resolve_people_drops_case_variants_keeping_the_first_spelling():
+    assert people.resolve_people("alice,ALICE, Alice ,bob", TEAMS) == ["alice", "bob"]
+
+
+def test_resolve_people_dedupes_case_variants_across_teams_and_literals():
+    assert people.resolve_people(["BOB", "@backend"], TEAMS) == ["BOB", "alice"]
+
+
 def test_resolve_people_splits_comma_lists():
     assert people.resolve_people("alice,bob", TEAMS) == ["alice", "bob"]
 

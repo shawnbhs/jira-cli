@@ -40,6 +40,7 @@ def isolate_jira_config(tmp_path_factory, monkeypatch):
             monkeypatch.delenv(name, raising=False)
     monkeypatch.setenv("HOME", str(home))
     monkeypatch.setenv("XDG_CONFIG_HOME", str(home / ".config"))
+    monkeypatch.setenv("XDG_DATA_HOME", str(home / ".local" / "share"))
     monkeypatch.setenv("JIRA_CLI_ENV_FILE", str(home / "isolated-test.env"))
     monkeypatch.setattr(config_mod, "DEFAULT_CONFIG_DIR", home / ".config" / "jira-cli")
     monkeypatch.setattr(config_mod, "LEGACY_ENV_FILE", home / ".jira-cli" / "config.env")

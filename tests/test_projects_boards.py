@@ -130,9 +130,38 @@ def test_list_projects_returns_key_name_lead_type():
     )
 
     assert projects.list_projects(client) == [
-        {"key": "PROJ", "name": "Project", "lead": "alice", "type": "software"},
-        {"key": "OPS", "name": "Ops", "lead": None, "type": "business"},
+        {
+            "key": "PROJ",
+            "name": "Project",
+            "lead": "alice",
+            "lead_name": "Alice",
+            "type": "software",
+        },
+        {"key": "OPS", "name": "Ops", "lead": None, "lead_name": None, "type": "business"},
     ]
+
+
+def test_list_projects_asks_the_server_to_expand_the_lead():
+    # Jira Server omits ``lead`` from the project list unless expand=lead is sent.
+    client = FakeClient(gets={"/rest/api/2/project": []})
+
+    projects.list_projects(client)
+
+    assert client.get_calls == [("/rest/api/2/project", {"expand": "lead"})]
+
+
+def test_list_projects_falls_back_to_the_lead_key_when_name_is_missing():
+    client = FakeClient(
+        gets={
+            "/rest/api/2/project": [
+                {"key": "PROJ", "name": "Project", "lead": {"key": "bob"}},
+            ]
+        }
+    )
+
+    [row] = projects.list_projects(client)
+
+    assert (row["lead"], row["lead_name"]) == ("bob", None)
 
 
 def test_get_project_includes_issue_types_components_and_versions():

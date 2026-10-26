@@ -31,7 +31,7 @@ import unicodedata
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from ..textsafe import terminal_safe, terminal_safe_line
+from ..textsafe import csv_safe_cell, terminal_safe, terminal_safe_line
 
 #: Appended to a value that had to be cut to fit its column (one cell wide).
 ELLIPSIS = "\u2026"
@@ -316,9 +316,9 @@ def report_to_csv(report: Mapping[str, Any]) -> str:
     columns = list(report.get("columns") or [])
     buffer = io.StringIO(newline="")
     writer = csv.writer(buffer, lineterminator="\n")
-    writer.writerow([terminal_safe_line(column) for column in columns])
+    writer.writerow([csv_safe_cell(terminal_safe_line(column)) for column in columns])
     for row in report.get("rows") or []:
-        writer.writerow([format_cell(row.get(column)) for column in columns])
+        writer.writerow([csv_safe_cell(format_cell(row.get(column))) for column in columns])
     return buffer.getvalue()
 
 

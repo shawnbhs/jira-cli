@@ -246,6 +246,12 @@ class Recorder:
         return fake
 
 
+def _split_names(value):
+    """Stand-in for members.clean_usernames / clean_groups."""
+    parts = value.split(",") if isinstance(value, str) else list(value or [])
+    return [part.strip() for part in parts if part.strip()]
+
+
 @pytest.fixture
 def server(monkeypatch):
     """Import the server with every lazily-imported dependency faked out."""
@@ -281,10 +287,44 @@ def server(monkeypatch):
             raise input_error(f"CSV plan {source}: unknown column(s) {header}")
         return {"issues": [{"summary": "from csv"}], "_source": str(source)}
 
+    fake_update_keys = ("summary", "description", "priority", "labels", "due_date",
+                        "components", "fix_versions")
+
+    def name_list(_field, value):
+        # Stand-in for services.issues.name_list.
+        return _split_names(value)
+
+    def normalize_changes(changes):
+        # Stand-in for services.issues.normalize_changes: rejects unknown
+        # fields and splits list fields, like the real one.
+        if not isinstance(changes, dict) or not changes:
+            raise input_error("no changes given")
+        unknown = sorted(set(changes) - set(fake_update_keys))
+        if unknown:
+            raise input_error(f"unknown field(s): {', '.join(unknown)}")
+        return {
+            name: _split_names(value) if name in ("labels", "components", "fix_versions") else value
+            for name, value in changes.items()
+        }
+
     class IssueSpec:
+        # The server binds this object into the confirm-token digest through
+        # canonical_json(default=str). The real IssueSpec is a dataclass with a
+        # field-based repr; the default object repr embeds the memory address,
+        # which made the preview and the confirmed call digest differently
+        # whenever the second object landed at another address.
         def __init__(self, **kwargs):
             for key, value in kwargs.items():
                 setattr(self, key, value)
+
+        def __repr__(self):
+            fields = ", ".join(f"{key}={value!r}" for key, value in sorted(vars(self).items()))
+            return f"IssueSpec({fields})"
+
+        def __eq__(self, other):
+            return type(other) is type(self) and vars(other) == vars(self)
+
+        __hash__ = None
 
     fakes = {
         "jira_cli.errors": _module(
@@ -306,6 +346,8 @@ def server(monkeypatch):
         "jira_cli.services.issues": _module(
             "jira_cli.services.issues",
             IssueSpec=IssueSpec,
+            name_list=name_list,
+            normalize_changes=normalize_changes,
             get_issue=recorder.make("get_issue", issue_snapshot),
             search_issues=recorder.make("search_issues", [{"key": f"PROJ-{n}"} for n in range(5)]),
             my_issues=recorder.make("my_issues", [{"key": "PROJ-1"}]),
@@ -326,6 +368,19 @@ def server(monkeypatch):
             list_projects=recorder.make("list_projects", [{"key": "PROJ", "name": "Project"}]),
             get_project=recorder.make("get_project", {"key": "PROJ", "name": "Project"}),
             create_project=recorder.make("create_project", {"key": "NEW", "id": "1"}),
+        ),
+        "jira_cli.services.members": _module(
+            "jira_cli.services.members",
+            clean_usernames=_split_names,
+            clean_groups=_split_names,
+            list_roles=recorder.make("list_roles", [{"name": "Developers", "users": [], "groups": []}]),
+            get_role=recorder.make(
+                "get_role",
+                {"project": "PROJ", "id": 10001, "name": "Developers",
+                 "users": [{"username": "alice"}], "groups": []},
+            ),
+            add_members=recorder.make("add_members", {"added_users": ["bob"]}),
+            remove_members=recorder.make("remove_members", {"removed_users": ["alice"]}),
         ),
         "jira_cli.services.boards": _module(
             "jira_cli.services.boards",
@@ -394,6 +449,35 @@ def server(monkeypatch):
             validate_plan=recorder.make("validate_plan", {"ok": True, "errors": [], "warnings": []}),
             preview_plan=recorder.make("preview_plan", {"title": "Plan", "columns": [], "rows": []}),
             apply_plan=recorder.make("apply_plan", {"created": [], "dry_run": True}),
+        ),
+        "jira_cli.services.directory": _module(
+            "jira_cli.services.directory",
+            build_directory_report=recorder.make(
+                "build_directory_report",
+                lambda *args, **kwargs: {
+                    "people": [
+                        {"username": "alice", "display_name": "Alice Example"},
+                        {"username": "bob", "display_name": "Bob Builder"},
+                    ],
+                    "projects": ["PROJ"],
+                    "unexpanded_groups": [],
+                    "errors": [],
+                },
+            ),
+            find_people=recorder.make(
+                "find_people",
+                lambda people, text: [p for p in people if text.lower() in p["display_name"].lower()],
+            ),
+        ),
+        "jira_cli.services.board_overview": _module(
+            "jira_cli.services.board_overview",
+            list_board_summaries=recorder.make(
+                "list_board_summaries", [{"id": 1, "name": "PROJ board", "total": 3}]
+            ),
+            board_overview=recorder.make(
+                "board_overview",
+                {"board": {"id": 1}, "columns": [{"name": "To Do", "count": 3}], "total": 3},
+            ),
         ),
     }
     for name, module in fakes.items():
@@ -774,7 +858,12 @@ def test_a_state_path_naming_a_directory_is_refused(server, plan_dir):
     assert "directory" in result["error"]
 
 
-def test_a_state_path_is_rechecked_when_the_approved_call_executes(server, plan_dir, monkeypatch, tmp_path):
+def test_a_token_is_refused_when_the_state_path_resolves_elsewhere_at_execute(
+    server, plan_dir, monkeypatch, tmp_path
+):
+    # The resolved state path is bound into the token: moving the
+    # plan directory between preview and approval invalidates the token rather
+    # than writing the state file somewhere the preview did not show.
     module, recorder = server
     first = module._tool_plan_apply(plan="issues: []\n", dry_run=False, state_path="s.applied.json")
     monkeypatch.setenv("JIRA_CLI_PLAN_DIR", str(tmp_path / "other"))
@@ -786,9 +875,8 @@ def test_a_state_path_is_rechecked_when_the_approved_call_executes(server, plan_
         confirm_token=first["confirm_token"],
     )
 
-    assert result["status"] == "done"
-    (_name, _args, kwargs) = [call for call in recorder.calls if call[0] == "apply_plan"][-1]
-    assert kwargs["state_path"] == (tmp_path / "other").resolve() / "s.applied.json"
+    assert result["status"] == "rejected"
+    assert not [call for call in recorder.calls if call[0] == "apply_plan"]
 
 
 def test_a_single_line_inline_mapping_is_still_treated_as_yaml(server, plan_dir):
@@ -997,6 +1085,21 @@ def test_every_write_tool_executes_once_it_is_confirmed(server):
         assert recorder.count(mutator) == 1, mutator
 
 
+def test_the_fake_issue_spec_digests_by_value_not_by_identity(server):
+    # Both objects are alive at once, so they cannot share an address: a digest
+    # built from the default object repr would differ. The confirm token binds
+    # the prepared spec, so the fake must digest like the real dataclass does.
+    spec_type = sys.modules["jira_cli.services.issues"].IssueSpec
+    first = spec_type(project="PROJ", summary="S", labels=["a"])
+    second = spec_type(project="PROJ", summary="S", labels=["a"])
+
+    assert first is not second
+    assert args_digest({"_resolved": first}) == args_digest({"_resolved": second})
+    assert args_digest({"_resolved": first}) != args_digest(
+        {"_resolved": spec_type(project="PROJ", summary="T", labels=["a"])}
+    )
+
+
 # ---------------------------------------------------------------------------
 # read-only mode
 # ---------------------------------------------------------------------------
@@ -1144,6 +1247,9 @@ EXPECTED_READ_TOOLS = {
     "jira_plan_template",
     "jira_plan_validate",
     "jira_plan_preview",
+    "jira_project_members",
+    "jira_people_directory",
+    "jira_board_overview",
 }
 
 EXPECTED_WRITE_TOOLS = {
@@ -1164,6 +1270,8 @@ EXPECTED_WRITE_TOOLS = {
     "jira_remove_team",
     "jira_save_filter",
     "jira_plan_apply",
+    "jira_add_project_members",
+    "jira_remove_project_members",
 }
 
 
@@ -1229,3 +1337,166 @@ def test_write_tool_descriptions_say_confirmation_is_needed(server):
 
     for name in sorted(EXPECTED_WRITE_TOOLS):
         assert "confirmation" in (listed[name].description or "").lower(), name
+
+
+# ---------------------------------------------------------------------------
+# project role membership
+# ---------------------------------------------------------------------------
+
+
+def test_project_members_lists_every_role_without_confirmation(server):
+    module, recorder = server
+
+    result = module._tool_project_members("PROJ")
+
+    assert result["status"] == "ok"
+    assert recorder.count("list_roles") == 1
+
+
+def test_add_project_members_preview_changes_nothing_and_splits_new_from_existing(server):
+    module, recorder = server
+
+    result = module._tool_add_project_members("PROJ", "Developers", users=["alice", "bob"])
+
+    assert result["status"] == "needs_confirmation"
+    assert result["preview"]["will_add"] == ["bob"]
+    assert result["preview"]["already_members"] == ["alice"]
+    assert recorder.count("add_members") == 0
+
+
+def test_add_project_members_runs_only_with_the_matching_token(server):
+    module, recorder = server
+    first = module._tool_add_project_members("PROJ", "Developers", users=["bob"])
+
+    tampered = module._tool_add_project_members(
+        "PROJ", "Developers", users=["mallory"], confirm_token=first["confirm_token"]
+    )
+    assert tampered["status"] == "rejected"
+    assert recorder.count("add_members") == 0
+
+    again = module._tool_add_project_members("PROJ", "Developers", users=["bob"])
+    done = module._tool_add_project_members(
+        "PROJ", "Developers", users=["bob"], confirm_token=again["confirm_token"]
+    )
+    assert done["status"] == "done"
+    assert recorder.count("add_members") == 1
+
+
+def test_remove_project_members_preview_lists_who_will_go_and_who_is_not_there(server):
+    module, recorder = server
+
+    result = module._tool_remove_project_members("PROJ", "Developers", users="alice,zed")
+
+    assert result["preview"]["will_remove"] == ["alice"]
+    assert result["preview"]["not_members"] == ["zed"]
+    assert recorder.count("remove_members") == 0
+
+
+# ---------------------------------------------------------------------------
+# people directory and board overview
+# ---------------------------------------------------------------------------
+
+
+def test_people_directory_reads_the_requested_projects_without_confirmation(server):
+    module, recorder = server
+
+    result = module._tool_people_directory(projects=["PROJ"], expand_groups=False)
+
+    assert result["status"] == "ok"
+    assert [p["username"] for p in result["result"]["people"]] == ["alice", "bob"]
+    _name, args, kwargs = recorder.calls[-1]
+    assert args[1] == ["PROJ"]
+    assert kwargs == {"expand_groups": False}
+
+
+def test_people_directory_without_projects_reads_every_project(server):
+    module, recorder = server
+
+    module._tool_people_directory()
+
+    _name, args, kwargs = recorder.calls[-1]
+    assert args[1] is None
+    assert kwargs == {"expand_groups": True}
+
+
+def test_people_directory_accepts_a_comma_separated_project_string(server):
+    module, recorder = server
+
+    module._tool_people_directory(projects="PROJ, OPS")
+
+    assert recorder.calls[-1][1][1] == ["PROJ", "OPS"]
+
+
+def test_people_directory_find_keeps_only_matching_people(server):
+    module, _recorder = server
+
+    result = module._tool_people_directory(find="build")
+
+    assert [p["username"] for p in result["result"]["people"]] == ["bob"]
+    assert result["result"]["projects"] == ["PROJ"]
+
+
+def test_people_directory_blank_find_keeps_everyone(server):
+    module, recorder = server
+
+    result = module._tool_people_directory(find="  ")
+
+    assert len(result["result"]["people"]) == 2
+    assert recorder.count("find_people") == 0
+
+
+def test_board_overview_without_a_board_lists_board_summaries(server):
+    module, recorder = server
+
+    result = module._tool_board_overview(project="PROJ")
+
+    assert result["status"] == "ok"
+    assert result["result"]["boards"] == [{"id": 1, "name": "PROJ board", "total": 3}]
+    assert recorder.calls[-1][1][1] == "PROJ"
+    assert recorder.count("board_overview") == 0
+
+
+def test_board_overview_with_a_board_returns_its_columns(server):
+    module, recorder = server
+
+    result = module._tool_board_overview(board_id=1, include_issues=False)
+
+    assert result["result"]["columns"] == [{"name": "To Do", "count": 3}]
+    _name, args, kwargs = recorder.calls[-1]
+    assert args[1] == 1
+    assert kwargs == {"include_issues": False, "limit": 100}
+    assert recorder.count("list_board_summaries") == 0
+
+
+@pytest.mark.parametrize(("limit", "expected"), [(300, 300), (301, 300), (5000, 300), (0, 1), (1, 1)])
+def test_board_overview_limit_is_clamped_to_1_through_300(server, limit, expected):
+    module, recorder = server
+
+    module._tool_board_overview(board_id=1, limit=limit)
+
+    assert recorder.calls[-1][2]["limit"] == expected
+
+
+def test_board_overview_service_failure_is_an_error_result(server, monkeypatch):
+    module, _recorder = server
+
+    def boom(*_args, **_kwargs):
+        raise FakeJiraError("board 999 not found")
+
+    monkeypatch.setattr(sys.modules["jira_cli.services.board_overview"], "board_overview", boom)
+
+    result = module._tool_board_overview(board_id=999)
+
+    assert result == {"status": "error", "error": "board 999 not found", "type": "FakeJiraError"}
+
+
+def test_membership_tools_are_refused_in_read_only_mode(server):
+    module, recorder = server
+    module.configure(FakeSettings(read_only=True), FakeClient())
+
+    added = module._tool_add_project_members("PROJ", "Developers", users=["bob"])
+    removed = module._tool_remove_project_members("PROJ", "Developers", users=["alice"])
+
+    assert added["status"] == removed["status"] == "rejected"
+    assert "confirm_token" not in added
+    assert recorder.count("get_role") == 0

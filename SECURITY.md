@@ -34,7 +34,9 @@ repository root.
 | A credential leaking into output, logs or error messages | Environment-only secrets, `repr` suppression, redaction of every error line and `--debug` traceback |
 | The credential being sent to the wrong host | Same-origin check on every URL; no `~/.netrc`; `http://` refused by default; no userinfo in the base URL; at most 5 redirects |
 | A crafted key or id walking a REST path (`PROJ-1/../../project/PROJ`) | Strict key/id validation plus a request-path check in the client |
-| A prompt-injected agent writing to Jira | Read-only mode, and a two-step `confirm_token` on every MCP write tool |
+| A prompt-injected agent writing to Jira | Read-only mode; MCP `ToolAnnotations` so the client asks the human before each write; untrusted-content labels on issue text; a two-step `confirm_token` (anti-tamper only) on every MCP write tool |
+| A write that differs from what was previewed | The confirm token binds the arguments and every value resolved from them (normalised lists, expanded team aliases, plan content hash) |
+| One MCP call carrying megabytes of input or thousands of issues | Schema bounds on every argument; inline plans capped at 1 MB and 500 issues |
 | An MCP client reading arbitrary local files through the plan tools | Plan files confined to one directory, suffix allow-list, 1 MB cap |
 | Hostile text from Jira rewriting the terminal | Control and bidi characters removed before printing |
 | An exported CSV executing as a spreadsheet formula | Formula-prefix escaping |
@@ -173,14 +175,30 @@ issued.
   `Aborted, nothing changed.` on stderr and exits **4**. Each preview line is
   folded to one terminal-safe line, so a value cannot fake or erase a line of
   the preview. Under `--json` the preview and prompt go to stderr.
-- **MCP.** Every write tool requires the two-step `confirm_token` handshake
-  (`jira_cli/confirm.py`), described in [docs/MCP_TOOLS.md](docs/MCP_TOOLS.md):
+- **MCP — human approval.** Human approval of an MCP write is the MCP
+  client's per-call tool approval. Every tool declares MCP
+  `ToolAnnotations` (`readOnlyHint` true on the 34 reads, false on the 19
+  writes; `destructiveHint` true on writes that overwrite, move or remove
+  data; `idempotentHint` where repeating is harmless) so the client can
+  auto-approve reads and ask before every write.
+- **MCP — anti-tamper.** Every write tool also requires the two-step
+  `confirm_token` handshake (`jira_cli/confirm.py`), described in
+  [docs/MCP_TOOLS.md](docs/MCP_TOOLS.md). The token is an
+  argument-binding, anti-tamper step and **not human consent**: it is
+  returned to the same model that redeems it.
   - the first call only builds a preview and mints a token;
   - the token comes from `secrets.token_urlsafe(16)`, is held in memory only,
     expires after 900 s, and is single-use;
   - it is bound to the tool name and to the SHA-256 of the canonical JSON of
-    the arguments (excluding `confirm_token`), so any change to the arguments
-    invalidates it;
+    the arguments (excluding `confirm_token`) **plus** the values the server
+    resolved from them — normalised `labels`/`components`/`fix_versions`,
+    `team:`/`@` aliases expanded to usernames, and the parsed plan and
+    resolved state path of `jira_plan_apply` (`plan_sha256` in the preview) —
+    so any change to the arguments, a rewritten plan file or an edited team
+    invalidates it, and the write uses exactly the previewed values;
+  - `jira_update_issue` validates field names and values in the preview with
+    the same function the write uses, so no token is issued for a change
+    that would fail;
   - any presentation of a stored token consumes it, even with the wrong tool
     or arguments, so a tampered retry burns the approval;
   - tokens are compared in constant time, and at most 256 are pending (the
@@ -272,8 +290,12 @@ Scanners are a floor, not a ceiling. A clean run is not an audit.
 ## Known limits
 
 - The MCP confirmation flow proves that a second call repeated the first one;
-  it cannot prove that a human read the preview. Use `JIRA_READ_ONLY=1` for an
-  agent you have not evaluated.
+  it cannot prove that a human read the preview — it is anti-tamper, not
+  human consent. Human approval depends on the MCP client honouring the
+  tool annotations and on its per-call approval being left on for writes.
+  Use `JIRA_READ_ONLY=1` for an agent you have not evaluated.
+- The untrusted-content labels on issue text are advice to the model, not a
+  sanitiser; a model may still follow instructions embedded in issue text.
 - Env-file permission and owner problems produce warnings, not refusals.
 - A CA-bundle path in `JIRA_VERIFY_TLS` is passed to `requests` as given; it
   is not checked for existence when settings are loaded.

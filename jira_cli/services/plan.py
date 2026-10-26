@@ -597,6 +597,7 @@ class _Lookups:
         self._types: dict[str, list[str]] = {}
         self._assignable: dict[str, list[str]] = {}
         self._active_sprint: dict[int, dict | None] = {}
+        self._board_types: dict[int, str | None] = {}
 
     @property
     def offline(self) -> bool:
@@ -634,6 +635,24 @@ class _Lookups:
             boards = importlib.import_module("jira_cli.services.boards")
             self._active_sprint[board_id] = boards.active_sprint(self._client, board_id)
         return self._active_sprint[board_id]
+
+    def board_type(self, board_id: int) -> str | None:
+        """Return the board's lower-cased type (``scrum``/``kanban``), or ``None``.
+
+        ``None`` means the type could not be determined; only ``AuthError``
+        propagates, any other Jira failure is treated as "unknown".
+        """
+        if board_id not in self._board_types:
+            errs = _errs()
+            boards = importlib.import_module("jira_cli.services.boards")
+            try:
+                raw_type = (boards.get_board(self._client, board_id) or {}).get("type")
+            except errs.AuthError:
+                raise
+            except errs.JiraError:
+                raw_type = None
+            self._board_types[board_id] = str(raw_type).strip().lower() if raw_type else None
+        return self._board_types[board_id]
 
 
 def _add(bucket: list[dict], ref: str | None, field: str, message: str) -> None:
@@ -901,9 +920,15 @@ def _validate_sprint(
     except errs.AuthError:
         raise
     except errs.JiraError as exc:
-        _add(warnings, ref, "sprint", f"could not read the active sprint: {exc}")
+        if lookups.board_type(board_id) == "kanban":
+            _add(errors, ref, "sprint", _kanban_sprint_message(board_id))
+        else:
+            _add(warnings, ref, "sprint", f"could not read the active sprint: {exc}")
         return
     if not active:
+        if lookups.board_type(board_id) == "kanban":
+            _add(errors, ref, "sprint", _kanban_sprint_message(board_id))
+            return
         _add(
             errors,
             ref,
@@ -911,6 +936,13 @@ def _validate_sprint(
             f"board {board_id} has no active sprint; start one, use a numeric sprint "
             f"id, or remove 'sprint' to create into the backlog",
         )
+
+
+def _kanban_sprint_message(board_id: int) -> str:
+    return (
+        f"board {board_id} is kanban and has no sprints; remove 'sprint' or use a "
+        f"scrum board"
+    )
 
 
 def validate_plan(client: Any, plan: dict) -> dict:

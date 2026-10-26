@@ -4,11 +4,14 @@ Every error the package raises is a :class:`JiraError`, so a caller can wrap
 one ``except`` around any operation. The important property of this hierarchy
 is that **stringifying an error can never leak a credential**: both ``str()``
 and ``repr()`` run the message through :func:`jira_cli.redact.redact`.
+The URL an error carries is reduced to its path (no host, no query values)
+by :func:`jira_cli.redact.request_target`, because error text reaches the
+terminal and the MCP client verbatim.
 """
 
 from __future__ import annotations
 
-from .redact import redact
+from .redact import redact, request_target
 
 
 class JiraError(Exception):
@@ -17,7 +20,8 @@ class JiraError(Exception):
     Args:
         message: Human-readable description. Redacted on output.
         status: HTTP status code when the failure came from Jira, else ``None``.
-        url: Request URL when relevant. Redacted on output.
+        url: Request URL when relevant. Only its path is kept (host and
+            query values dropped), and that path is redacted.
     """
 
     def __init__(
@@ -28,7 +32,7 @@ class JiraError(Exception):
     ) -> None:
         self.message = redact(message)
         self.status = status
-        self.url = redact(url)
+        self.url = request_target(url)
         super().__init__(self.message)
 
     def __str__(self) -> str:

@@ -12,6 +12,7 @@ when the settings say read-only.
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
@@ -51,6 +52,15 @@ UPDATE_KEYS = (
     "components",
     "fix_versions",
 )
+
+#: Fields of :func:`update_fields` that carry a list of names.
+LIST_UPDATE_KEYS = ("labels", "components", "fix_versions")
+#: Longest issue summary Jira accepts.
+SUMMARY_MAX_LENGTH = 255
+#: Longest description this module will send.
+DESCRIPTION_MAX_LENGTH = 32_768
+#: Most names one list field (labels, components, fix versions) may carry.
+LIST_FIELD_MAX_ITEMS = 100
 
 _DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 #: Attribute names Jira Server writes into the Sprint ``toString()`` blob.
@@ -598,6 +608,80 @@ def _validate_labels(labels: list[str]) -> list[str]:
     return cleaned
 
 
+def name_list(field_name: str, value: Any) -> list[str]:
+    """Normalise a list-of-names field to a list of non-empty, stripped strings.
+
+    ``"a, b"`` and ``["a", "b"]`` both become ``["a", "b"]``; ``None`` becomes
+    ``[]``. A plain string is split on commas — it is never iterated character
+    by character. Any other type is refused.
+
+    Raises:
+        InputError: for a non-string item, a value of another type, or more
+            than :data:`LIST_FIELD_MAX_ITEMS` names.
+    """
+    if value is None:
+        return []
+    if isinstance(value, str):
+        parts = value.split(",")
+    elif isinstance(value, (list, tuple)) and all(isinstance(part, str) for part in value):
+        parts = list(value)
+    else:
+        raise InputError(
+            f"{field_name} must be a list of strings or a comma-separated string, "
+            f"got {type(value).__name__}"
+        )
+    names = [part.strip() for part in parts if part.strip()]
+    if len(names) > LIST_FIELD_MAX_ITEMS:
+        raise InputError(f"{field_name} has {len(names)} items; at most {LIST_FIELD_MAX_ITEMS} allowed")
+    return names
+
+
+def normalize_changes(changes: Any) -> dict[str, Any]:
+    """Validate and normalise an :func:`update_fields` ``changes`` mapping.
+
+    This is the single place field names are checked and values are put in
+    the shape that is sent to Jira, so a preview built from its result shows
+    exactly what :func:`update_fields` will send. It is idempotent:
+    normalising an already normalised mapping returns an equal mapping.
+
+    Raises:
+        InputError: for a non-mapping, an empty mapping, an unknown field, or a
+            value of the wrong type or size.
+    """
+    if not isinstance(changes, Mapping):
+        raise InputError("changes must be a mapping of field to new value")
+    if not changes:
+        raise InputError("no changes given")
+    unknown = sorted(str(name) for name in set(changes) - set(UPDATE_KEYS))
+    if unknown:
+        raise InputError(
+            f"unknown field(s): {', '.join(unknown)}; allowed: {', '.join(UPDATE_KEYS)}"
+        )
+    out: dict[str, Any] = {}
+    for name, value in changes.items():
+        if name in LIST_UPDATE_KEYS:
+            names = name_list(name, value)
+            out[name] = _validate_labels(names) if name == "labels" else names
+        elif name == "summary":
+            text = str(value or "").strip()
+            if not text:
+                raise InputError("summary must not be empty")
+            if len(text) > SUMMARY_MAX_LENGTH:
+                raise InputError(f"summary is longer than {SUMMARY_MAX_LENGTH} characters")
+            out[name] = text
+        elif name == "description":
+            if value is not None and not isinstance(value, str):
+                raise InputError("description must be a string")
+            if value is not None and len(value) > DESCRIPTION_MAX_LENGTH:
+                raise InputError(f"description is longer than {DESCRIPTION_MAX_LENGTH} characters")
+            out[name] = value
+        elif name == "due_date":
+            out[name] = _validate_date(value, "due date") if value else None
+        else:
+            out[name] = value
+    return out
+
+
 def _validate_date(value: str, label: str) -> str:
     text = str(value).strip()
     if not _DATE_RE.match(text):
@@ -641,15 +725,19 @@ def build_fields(
     if spec.priority:
         payload["priority"] = {"name": spec.priority}
     if spec.labels:
-        payload["labels"] = _validate_labels(spec.labels)
+        payload["labels"] = _validate_labels(name_list("labels", spec.labels))
     if spec.due_date:
         payload["duedate"] = _validate_date(spec.due_date, "due date")
     if spec.original_estimate:
         payload["timetracking"] = {"originalEstimate": to_jira(spec.original_estimate)}
     if spec.components:
-        payload["components"] = [{"name": name} for name in spec.components]
+        payload["components"] = [
+            {"name": name} for name in name_list("components", spec.components)
+        ]
     if spec.fix_versions:
-        payload["fixVersions"] = [{"name": name} for name in spec.fix_versions]
+        payload["fixVersions"] = [
+            {"name": name} for name in name_list("fix_versions", spec.fix_versions)
+        ]
     if spec.epic_key:
         epic_field = fmap.epic_link
         if not epic_field:
@@ -700,31 +788,23 @@ def update_fields(client: JiraClient, key: str, changes: dict) -> dict:
     """Edit an existing issue. ``changes`` uses the contract's field names."""
     client.ensure_writable()
     key = _issue_ref(key)
-    if not changes:
-        raise InputError("no changes given")
-    unknown = sorted(set(changes) - set(UPDATE_KEYS))
-    if unknown:
-        raise InputError(
-            f"unknown field(s): {', '.join(unknown)}; allowed: {', '.join(UPDATE_KEYS)}"
-        )
+    # One normaliser shared with the MCP preview: what was previewed is sent.
+    changes = normalize_changes(changes)
 
     payload: dict[str, Any] = {}
     timetracking: dict[str, str] = {}
     fmap: FieldMap | None = None
     for name, value in changes.items():
         if name == "summary":
-            text = str(value or "").strip()
-            if not text:
-                raise InputError("summary must not be empty")
-            payload["summary"] = text
+            payload["summary"] = value
         elif name == "description":
             payload["description"] = value
         elif name == "priority":
             payload["priority"] = {"name": value}
         elif name == "labels":
-            payload["labels"] = _validate_labels(list(value or []))
+            payload["labels"] = value
         elif name == "due_date":
-            payload["duedate"] = _validate_date(value, "due date") if value else None
+            payload["duedate"] = value
         elif name == "original_estimate":
             timetracking["originalEstimate"] = to_jira(value)
         elif name == "remaining_estimate":
@@ -737,9 +817,9 @@ def update_fields(client: JiraClient, key: str, changes: dict) -> dict:
                 raise InputError("this Jira has no 'Story Points' field")
             payload[points_field] = value
         elif name == "components":
-            payload["components"] = [{"name": n} for n in (value or [])]
+            payload["components"] = [{"name": n} for n in value]
         elif name == "fix_versions":
-            payload["fixVersions"] = [{"name": n} for n in (value or [])]
+            payload["fixVersions"] = [{"name": n} for n in value]
     if timetracking:
         payload["timetracking"] = timetracking
 

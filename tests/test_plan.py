@@ -110,6 +110,9 @@ def fake_services(monkeypatch):
     monkeypatch.setattr(
         boards_mod, "active_sprint", lambda client, board_id: {"id": 77, "name": "S1"}
     )
+    monkeypatch.setattr(
+        boards_mod, "get_board", lambda client, board_id: {"id": board_id, "type": "scrum"}
+    )
 
 
 
@@ -697,6 +700,82 @@ def test_validate_plan_reports_sprint_active_when_the_board_has_none():
     body["defaults"].update({"sprint": "active", "board": 12})
     result = plan.validate_plan(FakeClient(), body)
     assert "no active sprint" in errors_for(result, "sprint")[0]["message"]
+
+
+def _no_sprints(client, board_id):
+    raise errors.JiraError("The board doesn't support sprints (HTTP 400)")
+
+
+def _board_of_type(board_type):
+    return lambda client, board_id: {"id": board_id, "type": board_type}
+
+
+def test_validate_plan_rejects_sprint_active_on_a_kanban_board():
+    boards_mod.active_sprint = _no_sprints
+    boards_mod.get_board = _board_of_type("kanban")
+    body = simple_plan()
+    body["defaults"].update({"sprint": "active", "board": 37})
+
+    result = plan.validate_plan(FakeClient(), body)
+
+    assert result["ok"] is False
+    [problem] = errors_for(result, "sprint")
+    assert problem["message"] == (
+        "board 37 is kanban and has no sprints; remove 'sprint' or use a scrum board"
+    )
+    assert warnings_for(result, "sprint") == []
+
+
+def test_validate_plan_rejects_sprint_active_on_a_kanban_board_with_no_sprint_error():
+    # Some servers answer an empty sprint list instead of HTTP 400 for kanban.
+    boards_mod.active_sprint = lambda client, board_id: None
+    boards_mod.get_board = _board_of_type("Kanban")
+    body = simple_plan()
+    body["defaults"].update({"sprint": "active", "board": 37})
+
+    result = plan.validate_plan(FakeClient(), body)
+
+    assert "is kanban and has no sprints" in errors_for(result, "sprint")[0]["message"]
+
+
+def test_validate_plan_only_warns_when_the_board_type_cannot_be_read():
+    def unreadable(client, board_id):
+        raise errors.JiraError("board lookup failed")
+
+    boards_mod.active_sprint = _no_sprints
+    boards_mod.get_board = unreadable
+    body = simple_plan()
+    body["defaults"].update({"sprint": "active", "board": 37})
+
+    result = plan.validate_plan(FakeClient(), body)
+
+    assert result["ok"] is True
+    assert "could not read the active sprint" in warnings_for(result, "sprint")[0]["message"]
+
+
+def test_validate_plan_only_warns_when_a_scrum_board_sprint_read_fails():
+    boards_mod.active_sprint = _no_sprints
+    body = simple_plan()
+    body["defaults"].update({"sprint": "active", "board": 12})
+
+    result = plan.validate_plan(FakeClient(), body)
+
+    assert result["ok"] is True
+    assert errors_for(result, "sprint") == []
+    assert "could not read the active sprint" in warnings_for(result, "sprint")[0]["message"]
+
+
+def test_validate_plan_propagates_an_auth_error_from_the_board_type_lookup():
+    def denied(client, board_id):
+        raise errors.AuthError("token rejected")
+
+    boards_mod.active_sprint = _no_sprints
+    boards_mod.get_board = denied
+    body = simple_plan()
+    body["defaults"].update({"sprint": "active", "board": 37})
+
+    with pytest.raises(errors.AuthError):
+        plan.validate_plan(FakeClient(), body)
 
 
 def test_validate_plan_accepts_sprint_active_when_the_board_has_one():

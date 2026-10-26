@@ -20,8 +20,9 @@ __all__ = [
     "validate_project_key",
 ]
 
-ISSUE_KEY_RE = re.compile(r"^[A-Z][A-Z0-9_]*-\d+$")
-PROJECT_KEY_RE = re.compile(r"^[A-Z][A-Z0-9_]*$")
+# ``[0-9]`` and re.ASCII: ``\d`` alone would also accept non-ASCII digits.
+ISSUE_KEY_RE = re.compile(r"^[A-Z][A-Z0-9_]*-[0-9]+$", re.ASCII)
+PROJECT_KEY_RE = re.compile(r"^[A-Z][A-Z0-9_]*$", re.ASCII)
 
 
 def validate_issue_key(value: object, *, what: str = "issue key") -> str:

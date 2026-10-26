@@ -153,13 +153,23 @@ class TestSprintReportGreenhopper:
 
         summary = sprint_report.sprint_report(client, 7, 42)["summary"]
 
-        # Four issues, one of which arrived mid-sprint.
+        # Four issues, one of which (PROJ-2, completed) arrived mid-sprint.
         assert summary["committed"] == 3
         assert summary["completed"] == 2
+        assert summary["completed_committed"] == 1
+        assert summary["completed_added"] == 1
         assert summary["not_completed"] == 1
         assert summary["removed"] == 1
         assert summary["added_after_start"] == 1
-        assert summary["completion_pct"] == pytest.approx(66.7)
+        assert summary["scope"] == 3
+
+    def test_completion_pct_counts_only_finished_committed_work(self):
+        client = FakeClient({sprint_report.GREENHOPPER_SPRINT_REPORT: _greenhopper_payload()})
+
+        summary = sprint_report.sprint_report(client, 7, 42)["summary"]
+
+        assert summary["completion_pct"] == pytest.approx(33.3)  # PROJ-1 of PROJ-1/3/4
+        assert summary["scope_completion_pct"] == pytest.approx(66.7)  # PROJ-1/2 of 1/2/3
 
     def test_summary_carries_story_points_when_the_board_estimates(self):
         client = FakeClient({sprint_report.GREENHOPPER_SPRINT_REPORT: _greenhopper_payload()})
@@ -168,7 +178,11 @@ class TestSprintReportGreenhopper:
 
         assert summary["points_committed"] == pytest.approx(9.0)  # 3 + 5 + 1
         assert summary["points_completed"] == pytest.approx(5.0)  # 3 + 2
+        assert summary["points_completed_committed"] == pytest.approx(3.0)
+        assert summary["points_completed_added"] == pytest.approx(2.0)
         assert summary["points_added_after_start"] == pytest.approx(2.0)
+        assert summary["points_completion_pct"] == pytest.approx(33.3)  # 3 of 9
+        assert summary["points_scope_completion_pct"] == pytest.approx(50.0)  # 5 of 10
 
     def test_summary_omits_points_when_no_issue_is_estimated(self):
         payload = {
@@ -195,6 +209,142 @@ class TestSprintReportGreenhopper:
 
         assert report["rows"] == []
         assert report["summary"]["completion_pct"] == 0.0
+
+
+# Shape of a Jira Server 10.3 GreenHopper sprint report entry (probed live,
+# sanitized): ids only, no ``typeName``/``statusName``.
+_ISSUE_TYPES = [
+    {"id": "10002", "name": "Task", "subtask": False},
+    {"id": "10004", "name": "Bug", "subtask": False},
+]
+_STATUSES = [
+    {"id": "10000", "name": "To Do", "statusCategory": {"key": "new"}},
+    {"id": "10001", "name": "Done", "statusCategory": {"key": "done"}},
+]
+
+
+def _server_issue(number, *, type_id="10002", status_id="10001", done=True):
+    return {
+        "id": 18000 + number,
+        "key": f"PROJ-{number}",
+        "hidden": False,
+        "typeId": type_id,
+        "summary": f"Thing {number}",
+        "priorityId": "4",
+        "done": done,
+        "assignee": "alice",
+        "assigneeName": "Alice",
+        "avatarUrl": "https://jira.example.com/secure/useravatar?avatarId=1",
+        "hasCustomUserAvatar": False,
+        "epicId": "18088",
+        "epic": "PROJ-100",
+        "currentEstimateStatistic": {"statFieldId": "customfield_10110", "statFieldValue": {}},
+        "estimateStatisticRequired": False,
+        "estimateStatistic": {"statFieldId": "customfield_10110", "statFieldValue": {}},
+        "statusId": status_id,
+        "fixVersions": [],
+        "projectId": 11006,
+    }
+
+
+def _server_payload():
+    """Three issues finished, all of them added after the sprint started.
+
+    Mirrors the live board that reported ``completion_pct 300``: one issue was
+    planned (PROJ-4, still open); PROJ-1..3 were added and finished.
+    """
+    return {
+        "contents": {
+            "completedIssues": [_server_issue(n) for n in (1, 2, 3)],
+            "issuesNotCompletedInCurrentSprint": [
+                _server_issue(4, status_id="10000", done=False),
+                _server_issue(5, status_id="10000", done=False),
+            ],
+            "puntedIssues": [_server_issue(6, type_id="10004", status_id="10000", done=False)],
+            "issuesCompletedInAnotherSprint": [],
+            "issueKeysAddedDuringSprint": {f"PROJ-{n}": True for n in (1, 2, 3, 5, 6)},
+            "entityData": {},
+        },
+        "sprint": {"id": 16, "name": "Sprint 1", "state": "ACTIVE"},
+    }
+
+
+def _server_client(**overrides):
+    routes = {
+        sprint_report.GREENHOPPER_SPRINT_REPORT: _server_payload(),
+        sprint_report.ISSUE_TYPES: _ISSUE_TYPES,
+        sprint_report.STATUSES: _STATUSES,
+    }
+    routes.update(overrides)
+    return FakeClient(routes)
+
+
+class TestSprintReportServerShape:
+    def test_resolves_type_and_status_names_from_ids(self):
+        report = sprint_report.sprint_report(_server_client(), 50, 16)
+
+        rows = {row["key"]: row for row in report["rows"]}
+        assert (rows["PROJ-1"]["type"], rows["PROJ-1"]["status"]) == ("Task", "Done")
+        assert (rows["PROJ-6"]["type"], rows["PROJ-6"]["status"]) == ("Bug", "To Do")
+
+    def test_fetches_issue_types_and_statuses_once_per_report(self):
+        client = _server_client()
+
+        sprint_report.sprint_report(client, 50, 16)
+
+        assert len(client.params_for(sprint_report.ISSUE_TYPES)) == 1
+        assert len(client.params_for(sprint_report.STATUSES)) == 1
+
+    def test_name_fields_win_and_skip_the_lookups(self):
+        client = FakeClient({sprint_report.GREENHOPPER_SPRINT_REPORT: _greenhopper_payload()})
+
+        rows = sprint_report.sprint_report(client, 7, 42)["rows"]
+
+        assert {row["type"] for row in rows} == {"Story"}
+        assert client.params_for(sprint_report.ISSUE_TYPES) == []
+        assert client.params_for(sprint_report.STATUSES) == []
+
+    def test_shows_the_raw_id_when_the_lookup_fails(self):
+        client = _server_client(**{sprint_report.STATUSES: JiraError("denied", status=403)})
+
+        rows = {row["key"]: row for row in sprint_report.sprint_report(client, 50, 16)["rows"]}
+
+        assert rows["PROJ-1"]["status"] == "10001"
+        assert rows["PROJ-1"]["type"] == "Task"
+
+    def test_shows_the_raw_id_when_the_id_is_unknown(self):
+        payload = _server_payload()
+        payload["contents"]["completedIssues"][0]["typeId"] = "99999"
+        client = _server_client(**{sprint_report.GREENHOPPER_SPRINT_REPORT: payload})
+
+        rows = {row["key"]: row for row in sprint_report.sprint_report(client, 50, 16)["rows"]}
+
+        assert rows["PROJ-1"]["type"] == "99999"
+
+    def test_added_and_finished_work_does_not_inflate_completion(self):
+        summary = sprint_report.sprint_report(_server_client(), 50, 16)["summary"]
+
+        assert summary["committed"] == 1
+        assert summary["completed"] == 3
+        assert summary["completed_committed"] == 0
+        assert summary["completed_added"] == 3
+        assert summary["completion_pct"] == 0.0  # was 300.0 before the fix
+
+    def test_scope_completion_covers_everything_now_in_the_sprint(self):
+        summary = sprint_report.sprint_report(_server_client(), 50, 16)["summary"]
+
+        assert summary["scope"] == 5
+        assert summary["scope_completion_pct"] == pytest.approx(60.0)
+
+    def test_completion_pct_reaches_exactly_100_when_the_whole_plan_is_done(self):
+        payload = _server_payload()
+        payload["contents"]["issuesNotCompletedInCurrentSprint"] = []
+        payload["contents"]["completedIssues"].append(_server_issue(4))
+        client = _server_client(**{sprint_report.GREENHOPPER_SPRINT_REPORT: payload})
+
+        summary = sprint_report.sprint_report(client, 50, 16)["summary"]
+
+        assert summary["completion_pct"] == 100.0
 
 
 class TestSprintReportDefaultSprint:

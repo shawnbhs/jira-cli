@@ -27,6 +27,8 @@ from jira_cli.services import reports
 from jira_cli.services import worklog as worklog_mod
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
+USER_PATH = "/rest/api/2/user"
+USER_SEARCH_PATH = "/rest/api/2/user/search"
 
 
 def load_fixture(name: str):
@@ -45,16 +47,24 @@ class FakeClient:
         counts: ``jql -> total`` for :meth:`count`; unknown JQL yields 0.
         issues: ``jql -> list[raw issue]`` for :meth:`search`; a ``None`` key
             acts as the catch-all. Unknown JQL yields ``[]``.
-        gets: ``path -> payload`` for :meth:`get`.
+        gets: ``path -> payload`` for :meth:`get`; an exception instance is
+            raised instead of returned.  Unless ``/rest/api/2/user`` is given
+            here, every user lookup succeeds and is recorded in
+            :attr:`user_lookups` (not :attr:`got`).
+        rejects: JQL predicate prefixes (e.g. ``"assignee was"``) that Jira
+            Server answers with HTTP 400 "The value ... does not exist for the
+            field ..." -- one message per offending predicate, like the server.
     """
 
-    def __init__(self, counts=None, issues=None, gets=None):
+    def __init__(self, counts=None, issues=None, gets=None, rejects=()):
         self._counts = dict(counts or {})
         self._issues = dict(issues or {})
         self._gets = dict(gets or {})
+        self._rejects = tuple(rejects)
         self.counted: list[str] = []
         self.searched: list[dict] = []
         self.got: list[tuple[str, dict | None]] = []
+        self.user_lookups: list[dict | None] = []
 
     def count(self, jql: str) -> int:
         self.counted.append(jql)
@@ -64,13 +74,29 @@ class FakeClient:
         self.searched.append(
             {"jql": jql, "fields": fields, "expand": expand, "limit": limit}
         )
+        rejected = [p for p in self._rejects if f"{p} " in jql]
+        if rejected:
+            raise errors.JiraError(
+                "; ".join(
+                    f"The value 'x' does not exist for the field '{p.split()[0]}'."
+                    for p in rejected
+                ),
+                status=400,
+                url="https://jira.example.com/rest/api/2/search",
+            )
         if jql in self._issues:
             return list(self._issues[jql])
         return list(self._issues.get(None, []))
 
     def get(self, path, params=None):
+        if path == USER_PATH and path not in self._gets:
+            self.user_lookups.append(params)
+            return {"name": (params or {}).get("username"), "active": True}
         self.got.append((path, params))
-        return self._gets.get(path)
+        payload = self._gets.get(path)
+        if isinstance(payload, Exception):
+            raise payload
+        return payload
 
     @property
     def search_jqls(self) -> list[str]:
@@ -328,7 +354,7 @@ class TestTeamDashboard:
         monkeypatch.setattr(
             worklog_mod,
             "user_worklogs",
-            lambda client, usernames, since, until=None, projects=None: [
+            lambda client, usernames, since, until=None, projects=None, **_: [
                 e
                 for e in (
                     {"author": "alice", "seconds": 3600},
@@ -362,7 +388,7 @@ class TestTeamDashboard:
     def test_worklog_is_queried_with_the_resolved_since_date(self, monkeypatch):
         calls: list[tuple] = []
 
-        def record(client, usernames, since, until=None, projects=None):
+        def record(client, usernames, since, until=None, projects=None, **_):
             calls.append((list(usernames), since, until, projects))
             return []
 
@@ -1057,6 +1083,161 @@ class TestPersonActivityEvents:
             }
         )
         assert len(reports.person_activity(client, "alice")["rows"]) == 1
+
+
+def _dated_issue(key: str) -> dict:
+    """An issue alice reported inside the default 7-day window."""
+    return issue(key, reporter="alice", created="2026-10-08T09:00:00.000+0000")
+
+
+class TestPersonActivityUnknownUser:
+    def test_unknown_user_gets_the_three_closest_usernames(self):
+        client = FakeClient(
+            gets={
+                USER_PATH: errors.NotFoundError("no user", status=404),
+                # Jira order: alphabetical, and "b.ober" matched a display name.
+                USER_SEARCH_PATH: [
+                    {"name": "b.ober"},
+                    {"name": "bobby.long"},
+                    {"name": "bob.x"},
+                    {"name": "carl.bob"},
+                ],
+            }
+        )
+        with pytest.raises(errors.InputError) as caught:
+            reports.person_activity(client, "bob")
+        assert str(caught.value) == (
+            "no Jira user 'bob'; did you mean: bob.x, carl.bob, bobby.long"
+        )
+
+    def test_unknown_user_never_reaches_the_search(self):
+        client = FakeClient(
+            gets={
+                USER_PATH: errors.NotFoundError("no user", status=404),
+                USER_SEARCH_PATH: [],
+            }
+        )
+        with pytest.raises(errors.InputError):
+            reports.person_activity(client, "ali")
+        assert client.searched == []
+
+    def test_unknown_user_without_matches_says_so(self):
+        client = FakeClient(
+            gets={
+                USER_PATH: errors.NotFoundError("no user", status=404),
+                USER_SEARCH_PATH: [],
+            }
+        )
+        with pytest.raises(errors.InputError, match=r"^no Jira user 'zz' \(no similar"):
+            reports.person_activity(client, "zz")
+
+    def test_failing_suggestion_search_still_reports_the_missing_user(self):
+        client = FakeClient(
+            gets={
+                USER_PATH: errors.NotFoundError("no user", status=404),
+                USER_SEARCH_PATH: errors.JiraError("boom", status=500),
+            }
+        )
+        with pytest.raises(errors.InputError) as caught:
+            reports.person_activity(client, "ali")
+        assert str(caught.value) == "no Jira user 'ali'"
+
+    def test_the_user_is_looked_up_by_username(self):
+        client = FakeClient()
+        reports.person_activity(client, "alice")
+        assert client.user_lookups == [{"username": "alice"}]
+
+    def test_other_lookup_failures_propagate(self):
+        client = FakeClient(gets={USER_PATH: errors.AuthError("nope", status=401)})
+        with pytest.raises(errors.AuthError):
+            reports.person_activity(client, "alice")
+
+
+class TestPersonActivityRejectedPredicates:
+    RETRY_JQL = (
+        '(assignee = "alice" OR reporter = "alice" OR worklogAuthor = "alice") '
+        'AND updated >= "2026-10-04"'
+    )
+
+    def test_never_assigned_user_drops_assignee_was_and_retries(self):
+        client = FakeClient(rejects=["assignee was"])
+        reports.person_activity(client, "alice")
+        assert client.search_jqls[1] == self.RETRY_JQL
+
+    def test_retry_rows_come_back(self):
+        client = FakeClient(
+            rejects=["assignee was"],
+            issues={self.RETRY_JQL: [_dated_issue("PROJ-1")]},
+        )
+        report = reports.person_activity(client, "alice")
+        assert [r["key"] for r in report["rows"]] == ["PROJ-1"]
+
+    def test_meta_records_the_successful_jql_and_the_dropped_predicate(self):
+        client = FakeClient(rejects=["assignee was"])
+        meta = reports.person_activity(client, "alice")["meta"]
+        assert meta["jql"] == [self.RETRY_JQL]
+        assert meta["notes"] == [
+            "dropped 'assignee was \"alice\"': Jira rejected \"alice\" for field "
+            "'assignee' (HTTP 400, the user never held that role)"
+        ]
+
+    def test_several_rejected_predicates_are_dropped_in_one_retry(self):
+        client = FakeClient(rejects=["assignee was", "worklogAuthor ="])
+        report = reports.person_activity(client, "alice", projects=["PROJ"])
+        assert client.search_jqls[1:] == [
+            '(assignee = "alice" OR reporter = "alice") '
+            'AND updated >= "2026-10-04" AND project = "PROJ"'
+        ]
+        assert len(report["meta"]["notes"]) == 2
+
+    def test_every_predicate_rejected_gives_an_empty_report_with_a_note(self):
+        client = FakeClient(
+            rejects=["assignee was", "assignee =", "reporter =", "worklogAuthor ="]
+        )
+        report = reports.person_activity(client, "alice")
+        assert report["rows"] == []
+        assert report["meta"]["jql"] == client.search_jqls
+        assert report["meta"]["notes"][-1] == (
+            'Jira rejected every involvement predicate for "alice", so no '
+            "issues could be searched and the report is empty"
+        )
+        assert_report_shape(report)
+
+    def test_no_rejection_means_no_notes(self):
+        report = reports.person_activity(FakeClient(), "alice")
+        assert report["meta"]["notes"] == []
+
+    def test_unknown_project_400_is_not_swallowed(self):
+        client = FakeClient(rejects=["project ="])
+        with pytest.raises(errors.JiraError, match="field 'project'"):
+            reports.person_activity(client, "alice", projects=["NOPE"])
+        assert len(client.searched) == 1
+
+    def test_other_server_errors_propagate(self):
+        class Broken(FakeClient):
+            def search(self, jql, fields=None, expand=None, limit=None):
+                raise errors.JiraError(
+                    "The value 'x' does not exist for the field 'assignee'.",
+                    status=500,
+                )
+
+        with pytest.raises(errors.JiraError):
+            reports.person_activity(Broken(), "alice")
+
+    def test_rejection_message_is_matched_case_insensitively(self):
+        class Shouty(FakeClient):
+            def search(self, jql, fields=None, expand=None, limit=None):
+                self.searched.append({"jql": jql})
+                if "assignee was" in jql:
+                    raise errors.JiraError(
+                        "The value 'x' DOES NOT EXIST for the field 'Assignee'.",
+                        status=400,
+                    )
+                return []
+
+        client = Shouty()
+        reports.person_activity(client, "alice")
+        assert client.search_jqls[-1] == self.RETRY_JQL
 
 
 # --------------------------------------------------------------------------- #

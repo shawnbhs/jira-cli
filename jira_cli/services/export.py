@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Any
 
 from jira_cli.errors import InputError
+from jira_cli.textsafe import csv_safe_cell
 
 #: Formats ``write_report`` understands, mapped to the suffixes that select them.
 FORMATS: dict[str, tuple[str, ...]] = {
@@ -34,9 +35,6 @@ FORMATS: dict[str, tuple[str, ...]] = {
     "csv": (".csv",),
     "json": (".json",),
 }
-
-#: Leading characters a spreadsheet may interpret as the start of a formula.
-_FORMULA_PREFIXES = ("=", "+", "-", "@", "\t", "\r")
 
 #: Anything ``safe_filename`` must replace.
 _UNSAFE_FILENAME_CHARS = re.compile(r"[^A-Za-z0-9._-]")
@@ -239,11 +237,12 @@ def _cell(value: Any) -> str:
 
 
 def _csv_cell(value: Any) -> str:
-    """Render a value for CSV, neutralising a leading formula character."""
-    text = _scalar(value)
-    if text.startswith(_FORMULA_PREFIXES):
-        return "'" + text
-    return text
+    """Render a value for CSV: control characters stripped, formulas neutralised.
+
+    The same :func:`jira_cli.textsafe.csv_safe_cell` is used by the stdout
+    renderer in ``cli.output``, so ``--out`` files and piped stdout agree.
+    """
+    return csv_safe_cell(_scalar(value))
 
 
 # --------------------------------------------------------------------------- #

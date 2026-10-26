@@ -17,6 +17,10 @@ The client is deliberately small and strict:
 * Nothing prints. Headers are never logged, the secret never reaches
   ``repr()``, and every message raised passes through
   :func:`jira_cli.redact.redact`.
+* Error messages carry only Jira's structured ``errorMessages``/``errors``,
+  each clipped; a non-JSON error body (an HTML error page, a proxy page, a
+  stack trace) is never quoted, only its size is reported. Errors carry the
+  request path, never the host or query values.
 """
 
 from __future__ import annotations
@@ -55,6 +59,27 @@ MAX_REDIRECTS = 5
 """Redirect cap; requests' default of 30 only prolongs a redirect loop."""
 
 DEFAULT_PORTS = {"https": 443, "http": 80}
+
+MAX_ERROR_PART = 300
+"""Characters kept from each Jira error message or field error."""
+
+MAX_ERROR_PARTS = 10
+"""Jira error messages kept; the rest are counted, not quoted."""
+
+_CONNECTION_REASONS: tuple[tuple[tuple[str, ...], str], ...] = (
+    (("CERTIFICATE_VERIFY_FAILED", "certificate verify failed"), "TLS certificate verification failed"),
+    (("SSLError", "SSL:"), "TLS handshake failed"),
+    (
+        ("NameResolutionError", "Name or service not known", "getaddrinfo", "nodename nor servname"),
+        "host name could not be resolved",
+    ),
+    (("Connection refused", "ConnectionRefused"), "connection refused"),
+    (("timed out", "Timeout"), "timed out"),
+    (("ProxyError",), "proxy error"),
+    (("TooManyRedirects",), "too many redirects"),
+)
+"""Fixed phrases for a connection failure. The exception text itself names the
+host, the full URL and its query, so it is classified, never quoted."""
 
 _DOT_SEGMENTS = frozenset({".", ".."})
 _FORBIDDEN_PATH_ENCODINGS = re.compile(r"%(?:2e|2f|5c|25|00)", re.IGNORECASE)
@@ -147,17 +172,64 @@ class _NoNetrcSession(requests.Session):
             del headers["Authorization"]
 
 
-def _join_messages(payload: Any) -> str:
-    """Flatten Jira's ``errorMessages``/``errors`` into one line."""
+def _clip(value: Any) -> str:
+    """One line of at most :data:`MAX_ERROR_PART` characters."""
+    text = " ".join(str(value).split())
+    if len(text) > MAX_ERROR_PART:
+        text = text[: MAX_ERROR_PART - 3].rstrip() + "..."
+    return text
+
+
+def _join_messages(payload: Any, *, allow_message: bool = True) -> str:
+    """Flatten Jira's ``errorMessages``/``errors`` into one line.
+
+    Each message is whitespace-collapsed and clipped to
+    :data:`MAX_ERROR_PART` characters; at most :data:`MAX_ERROR_PARTS` are
+    kept. Jira's own wording (for example ``The value 'x' does not exist for
+    the field 'assignee'.``) is otherwise kept verbatim, because callers match
+    on it. The free-form ``message`` key is used only when ``allow_message``
+    is true: on a 5xx it is often an exception dump.
+    """
     if not isinstance(payload, dict):
         return ""
-    parts: list[str] = [str(m) for m in (payload.get("errorMessages") or []) if m]
+    messages = payload.get("errorMessages")
+    if isinstance(messages, str):
+        messages = [messages]
+    parts: list[str] = []
+    if isinstance(messages, list):
+        parts.extend(_clip(m) for m in messages if m)
     field_errors = payload.get("errors")
     if isinstance(field_errors, dict):
-        parts.extend(f"{name}: {text}" for name, text in field_errors.items())
-    if not parts and payload.get("message"):
-        parts.append(str(payload["message"]))
+        parts.extend(f"{_clip(name)}: {_clip(text)}" for name, text in field_errors.items())
+    message = payload.get("message")
+    if not parts and allow_message and isinstance(message, str) and message.strip():
+        parts.append(_clip(message))
+    parts = [part for part in parts if part]
+    if len(parts) > MAX_ERROR_PARTS:
+        extra = len(parts) - MAX_ERROR_PARTS
+        parts = [*parts[:MAX_ERROR_PARTS], f"(+{extra} more)"]
     return "; ".join(parts)
+
+
+def _body_size(response: Any) -> int:
+    """Byte length of a response body, without keeping any of it."""
+    content = getattr(response, "content", None)
+    if isinstance(content, (bytes, bytearray)):
+        return len(content)
+    text = getattr(response, "text", "") or ""
+    return len(str(text).encode("utf-8", "replace"))
+
+
+def _connection_reason(exc: BaseException | None) -> str:
+    """``ConnectionError (host name could not be resolved)`` — never the raw text."""
+    if exc is None:
+        return "connection failed"
+    name = type(exc).__name__
+    raw = f"{name} {exc}"
+    for needles, reason in _CONNECTION_REASONS:
+        if any(needle.lower() in raw.lower() for needle in needles):
+            return f"{name} ({reason})"
+    return name
 
 
 class JiraClient:
@@ -267,15 +339,26 @@ class JiraClient:
     # -- request plumbing ----------------------------------------------------
 
     def _raise_for_status(self, response: Any, url: str) -> None:
+        """Raise the error class for ``response``'s status, if it is an error.
+
+        The message is Jira's structured ``errorMessages``/``errors`` only
+        (clipped and redacted). A body that is not JSON is never quoted: an
+        HTML error page or stack trace would carry internal host names and
+        code paths into the terminal or the model. Only its size is given.
+        The URL is reduced to its path by :class:`JiraError`.
+        """
         status = int(getattr(response, "status_code", 0) or 0)
         if status < 400:
             return
         try:
-            detail = _join_messages(response.json())
+            payload = response.json()
         except Exception:  # noqa: BLE001 - a non-JSON error body is normal
-            detail = (getattr(response, "text", "") or "")[:500]
+            size = _body_size(response)
+            detail = f"Jira returned HTTP {status} (non-JSON response, {size} bytes)" if size else ""
+        else:
+            detail = _join_messages(payload, allow_message=status < 500)
         message = redact(detail.strip() or f"Jira returned HTTP {status}")
-        safe_url = redact(url)
+        safe_url = url
         if status == 401:
             raise AuthError(message, status=status, url=safe_url)
         if status == 403:
@@ -349,9 +432,8 @@ class JiraClient:
             return self._parse(response)
 
         raise JiraError(
-            f"could not reach Jira after {attempts} attempt(s): "
-            f"{redact(last_error) or 'connection failed'}",
-            url=redact(url),
+            f"could not reach Jira after {attempts} attempt(s): {_connection_reason(last_error)}",
+            url=url,
         )
 
     # -- verbs ---------------------------------------------------------------
@@ -439,7 +521,7 @@ class JiraClient:
             raise PartialResultError(
                 f"{path} reported {total} items but only {len(collected)} "
                 "could be fetched; the result would be incomplete",
-                url=redact(self.build_url(path)),
+                url=self.build_url(path),
             )
         return collected
 
